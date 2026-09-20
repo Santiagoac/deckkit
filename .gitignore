@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+.env*
+
+# Generated from canon/brand.yaml by scripts/build-canon.mjs — never edit by hand
+src/styles/tokens.generated.css
+
+# Your old decks and source PDFs. Private by default: an investor deck
+# carries things nobody wants on GitHub. Publishing them is your call.
+reference/
+
+# Licensed webfonts are gitignored when canon/brand.yaml sets typography.licensed: true

@@ -1,0 +1,22 @@
+{
+  "name": "deckkit",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Present it like a deck, share it like a link.",
+  "license": "MIT",
+  "scripts": {
+    "canon": "node scripts/build-canon.mjs",
+    "predev": "npm run canon",
+    "prebuild": "npm run canon",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "node --test scripts/**/*.test.mjs"
+  },
+  "dependencies": {
+    "astro": "^5.13.0",
+    "@astrojs/mdx": "^4.3.0",
+    "yaml": "^2.5.0"
+  }
+}

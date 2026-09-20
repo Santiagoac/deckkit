@@ -5,14 +5,14 @@ import { buildCss } from './build-canon.mjs';
 const canon = {
   name: 'Acme',
   palette: {
-    primary: { 50: '#EEF6FF', 400: '#5B9BE8', 950: '#12294C' },
+    primary: { 50: '#EEF6FF', 400: '#5B9BE8', 700: '#2C5FA8', 950: '#12294C' },
     neutral: { 50: '#F8F7F5', 950: '#221F1C' },
   },
   backgrounds: {
     paper: { bg: 'neutral.50', fg: 'auto', logo: 'dark' },
     deep:  { bg: 'primary.950', fg: 'auto', logo: 'light' },
   },
-  accents: { blue: { strong: 'primary.950', soft: 'primary.400', light: 'primary.400' } },
+  accents: { blue: { strong: 'primary.950', soft: 'primary.700', light: 'primary.400' } },
   typography: {
     display: { family: 'Inter', source: 'google', weights: [400, 700] },
     body: { family: 'Inter', source: 'google', weights: [400] },
@@ -31,20 +31,34 @@ test('derives the spacing scale from spacingBase', () => {
   assert.match(buildCss(canon), /--sp-3:\s*24px/);
 });
 
-test('emits one class per background, preferring its own scale for text', () => {
+test('emits chrome tokens from the neutral scale and the first accent', () => {
   const css = buildCss(canon);
-  assert.match(css, /\.bg-paper\s*\{[^}]*--fg:\s*#221F1C/s);   // neutral bg -> dark neutral text
-  assert.match(css, /\.bg-deep\s*\{[^}]*--fg:\s*#EEF6FF/s);    // primary bg -> light primary text
+  assert.match(css, /--ink:\s*#221F1C/);
+  assert.match(css, /--paper:\s*#F8F7F5/);
+  assert.match(css, /--brand:\s*#2C5FA8/);
+  assert.match(css, /--brand-light:\s*#5B9BE8/);
+});
+
+test('light background: text takes the accent; dark background: contrast-picked light text', () => {
+  const css = buildCss(canon);
+  assert.match(css, /\.bg-paper\s*\{[^}]*--fg:\s*var\(--accent\)/s);
+  assert.match(css, /\.bg-deep\s*\{[^}]*--fg:\s*#EEF6FF/s);
+  assert.match(css, /\.bg-deep\s*\{[^}]*--accent-visible:\s*var\(--accent-light\)/s);
 });
 
 test('emits one class per accent', () => {
   assert.match(buildCss(canon), /\.accent-blue\s*\{[^}]*--accent:\s*#12294C/s);
 });
 
-test('fails when no text color reaches AA on a background', () => {
+test('fails when an accent does not reach AA on a light background', () => {
+  const bad = { ...canon, accents: { pale: { strong: 'primary.400', soft: 'primary.400' } } };
+  assert.throws(() => buildCss(bad), /AA on background "paper"/);
+});
+
+test('fails when no text color reaches AA on a dark background', () => {
   const bad = { ...canon,
-    palette: { gray: { 500: '#888888' } },
+    palette: { gray: { 400: '#777777', 500: '#888888' } },
     backgrounds: { mud: { bg: 'gray.500', fg: 'auto', logo: 'dark' } },
-    accents: { g: { strong: 'gray.500', soft: 'gray.500' } } };
+    accents: { g: { strong: 'gray.400', soft: 'gray.400' } } };
   assert.throws(() => buildCss(bad), /AA/);
 });

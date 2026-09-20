@@ -1,43 +1,57 @@
 /** canon/brand.yaml -> src/styles/tokens.generated.css
- *  Palette custom properties, spacing scale, one class per background and per
- *  accent. Fails the build when a background has no AA-compliant text color. */
+ *  Palette custom properties, spacing scale, global chrome tokens, and one class
+ *  per background and per accent carrying the semantic variables the templates
+ *  use. Fails the build when text would not reach WCAG AA. */
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadCanon, resolveRef } from './lib/canon.mjs';
-import { pickForeground } from './lib/color.mjs';
+import { pickForeground, contrastRatio, relativeLuminance } from './lib/color.mjs';
 
 const SPACING_STEPS = [1, 2, 3, 4, 5, 6, 8, 10, 12];
+const AA = 4.5;
 
-/** Extremes of every scale, lightest and darkest. The background's own scale
- *  goes first: text on a neutral is that neutral's dark end, text on a primary
- *  is that primary's light end. */
+const sortedSteps = (steps) => Object.keys(steps).map(Number).sort((a, b) => a - b);
+const lightest = (steps) => steps[sortedSteps(steps)[0]];
+const darkest = (steps) => steps[sortedSteps(steps).at(-1)];
+
+/** Extremes of every scale. The background's own scale goes first. */
 function foregroundCandidates(palette, preferScale) {
-  const extremes = (steps) => {
-    const keys = Object.keys(steps).map(Number).sort((a, b) => a - b);
-    return keys.length ? [steps[keys[0]], steps[keys.at(-1)]] : [];
-  };
-  const own = preferScale && palette[preferScale] ? extremes(palette[preferScale]) : [];
-  const rest = Object.entries(palette)
-    .filter(([name]) => name !== preferScale)
-    .flatMap(([, steps]) => extremes(steps));
+  const ext = (steps) => (sortedSteps(steps).length ? [lightest(steps), darkest(steps)] : []);
+  const own = palette[preferScale] ? ext(palette[preferScale]) : [];
+  const rest = Object.entries(palette).filter(([n]) => n !== preferScale).flatMap(([, s]) => ext(s));
   return [...new Set([...own, ...rest])];
+}
+
+/** Global chrome tokens for controls, progress bar, top bar. */
+function chromeTokens(palette, accents) {
+  const neutral = palette.neutral ?? Object.values(palette)
+    .sort((a, b) => relativeLuminance(darkest(a)) - relativeLuminance(darkest(b)))[0];
+  const first = Object.values(accents)[0];
+  return {
+    ink: darkest(neutral),
+    paper: lightest(neutral),
+    brand: resolveRef(palette, first.soft),
+    brandLight: resolveRef(palette, first.light ?? first.soft),
+  };
 }
 
 function fontStack(font, generic) {
   const parts = [`'${font.family}'`];
   if (font.fallback) parts.push(`'${font.fallback}'`);
-  parts.push(generic);
-  return parts.join(', ');
+  return [...parts, generic].join(', ');
 }
 
 export function buildCss(canon) {
   const { palette, backgrounds, accents, typography, logo, spacingBase } = canon;
+  const chrome = chromeTokens(palette, accents);
   const L = ['/* GENERATED from canon/brand.yaml by scripts/build-canon.mjs. Do not edit. */', ':root {'];
 
   for (const [scale, steps] of Object.entries(palette))
     for (const [step, hex] of Object.entries(steps)) L.push(`  --c-${scale}-${step}: ${hex};`);
   for (const n of SPACING_STEPS) L.push(`  --sp-${n}: ${n * spacingBase}px;`);
+  L.push(`  --ink: ${chrome.ink};`, `  --paper: ${chrome.paper};`);
+  L.push(`  --brand: ${chrome.brand};`, `  --brand-light: ${chrome.brandLight};`);
   L.push(`  --font-display: ${fontStack(typography.display, 'sans-serif')};`);
   L.push(`  --font-body: ${fontStack(typography.body, 'sans-serif')};`);
   L.push(`  --font-mono: ${fontStack(typography.mono, 'ui-monospace, monospace')};`);
@@ -53,15 +67,31 @@ export function buildCss(canon) {
 
   for (const [name, b] of Object.entries(backgrounds)) {
     const bg = resolveRef(palette, b.bg);
-    const scale = String(b.bg).split('.')[0];
-    const fg = b.fg === 'auto'
-      ? pickForeground(bg, foregroundCandidates(palette, scale)).hex
-      : resolveRef(palette, b.fg);
-    L.push(`.bg-${name} {`);
-    L.push(`  --bg: ${bg};`);
-    L.push(`  --fg: ${fg};`);
-    L.push(`  --logo: url('${logo?.[b.logo] ?? ''}');`);
-    L.push('}');
+    const isLight = relativeLuminance(bg) > 0.4;
+    L.push(`.bg-${name} {`, `  --bg: ${bg};`);
+
+    if (isLight && b.fg === 'auto') {
+      // Light background: text takes the section accent. Every accent must read on it.
+      for (const [an, a] of Object.entries(accents)) {
+        const strong = resolveRef(palette, a.strong);
+        const ratio = contrastRatio(strong, bg);
+        if (ratio < AA) throw new Error(
+          `Accent "${an}" (${strong}) does not reach AA on background "${name}" (${bg}): ${ratio.toFixed(2)}:1.\n` +
+          `Fix: darken accents.${an}.strong in canon/brand.yaml, or don't pair them.`);
+      }
+      L.push('  --fg: var(--accent);', '  --fg-soft: var(--accent-soft);', '  --title: var(--accent);');
+      L.push('  --accent-visible: var(--accent);');
+      L.push('  --panel-bg: var(--accent);', '  --panel-fg: var(--paper);');
+    } else {
+      const fg = b.fg === 'auto'
+        ? pickForeground(bg, foregroundCandidates(palette, String(b.bg).split('.')[0])).hex
+        : resolveRef(palette, b.fg);
+      L.push(`  --fg: ${fg};`, '  --fg-soft: color-mix(in srgb, var(--fg) 72%, var(--bg));', '  --title: var(--fg);');
+      L.push(`  --accent-visible: ${isLight ? 'var(--accent)' : 'var(--accent-light)'};`);
+      L.push('  --panel-bg: color-mix(in srgb, var(--bg) 80%, var(--paper));', '  --panel-fg: var(--paper);');
+    }
+    L.push('  --rule: color-mix(in srgb, var(--fg) 20%, var(--bg));');
+    L.push(`  --logo: url('${logo?.[b.logo] ?? ''}');`, '}');
   }
   return L.join('\n') + '\n';
 }

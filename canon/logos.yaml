@@ -1,3 +1,4 @@
-# Customer and investor logos. Third-party trademarks: confirm you may show them.
-# - { id: acme, group: customers, src: /assets/logos/acme.svg, alt: "Acme" }
+# Customer and investor logos. Third-party trademarks: each entry needs permission: true,
+# recorded after you confirmed you may show it. Without it the build fails.
+# - { id: acme, group: customers, src: /assets/logos/acme.svg, alt: "Acme", permission: true }
 []

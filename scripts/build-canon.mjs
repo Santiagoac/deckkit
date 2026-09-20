@@ -57,6 +57,17 @@ export function buildCss(canon) {
   L.push(`  --font-mono: ${fontStack(typography.mono, 'ui-monospace, monospace')};`);
   L.push('}');
 
+  // Licensed fonts live in public/fonts/ (gitignored) and need @font-face; Google fonts arrive by <link>.
+  for (const role of ['display', 'body', 'mono']) {
+    const f = typography[role];
+    if (f?.source !== 'local') continue;
+    if (!f.files) throw new Error(`canon/brand.yaml: typography.${role} is local but has no "files" ({ weight: filename }).`);
+    for (const [weight, file] of Object.entries(f.files)) {
+      L.push('@font-face {', `  font-family: '${f.family}';`, `  src: url('/fonts/${file}') format('woff2');`,
+             `  font-weight: ${weight};`, '  font-style: normal;', '  font-display: swap;', '}');
+    }
+  }
+
   for (const [name, a] of Object.entries(accents)) {
     L.push(`.accent-${name} {`);
     L.push(`  --accent: ${resolveRef(palette, a.strong)};`);

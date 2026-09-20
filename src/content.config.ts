@@ -71,12 +71,20 @@ const facts = defineCollection({
 
 const team = defineCollection({
   loader: file('./canon/team.yaml'),
-  schema: z.object({ id: z.string(), name: z.string(), role: z.string(), photo: z.string() }),
+  schema: z.object({
+    id: z.string(), name: z.string(), role: z.string(), photo: z.string(),
+    // A photo is personal data. It enters a public deck only after the person said yes.
+    consent: z.literal(true, { required_error: 'consent: true is required. Ask the person before putting their photo in a public deck.', invalid_type_error: 'consent must be exactly true — record it only after the person said yes.' }),
+  }),
 });
 
 const logos = defineCollection({
   loader: file('./canon/logos.yaml'),
-  schema: z.object({ id: z.string(), group: z.enum(['customers', 'investors']), src: z.string(), alt: z.string() }),
+  schema: z.object({
+    id: z.string(), group: z.enum(['customers', 'investors']), src: z.string(), alt: z.string(),
+    // Third-party trademark. Many startups may not show a customer's logo — confirm first.
+    permission: z.literal(true, { required_error: 'permission: true is required. Confirm you may show this logo before adding it.', invalid_type_error: 'permission must be exactly true — record it only after you confirmed it.' }),
+  }),
 });
 
 export const collections = { slides, decks, facts, team, logos };

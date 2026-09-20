@@ -11,4 +11,6 @@ src/styles/tokens.generated.css
 # carries things nobody wants on GitHub. Publishing them is your call.
 reference/
 
-# Licensed webfonts are gitignored when canon/brand.yaml sets typography.licensed: true
+# Licensed webfonts. Google Fonts need no files here, so anything in this folder
+# is a font you paid for — it must not be redistributed through git.
+public/fonts/

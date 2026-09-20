@@ -72,3 +72,15 @@ test('placeholderLogo renders the brand name in the requested ink on a transpare
   assert.match(svg, /fill="#221F1C"/);
   assert.doesNotMatch(svg, /<rect/);
 });
+
+test('emits @font-face for locally hosted (licensed) fonts', () => {
+  const local = { ...canon, typography: { ...canon.typography,
+    display: { family: 'Graphik', source: 'local', weights: [400, 500], files: { 400: 'Graphik-Regular.woff2', 500: 'Graphik-Medium.woff2' }, fallback: 'Inter' } } };
+  const css = buildCss(local);
+  assert.match(css, /@font-face\s*\{[^}]*font-family:\s*'Graphik'[^}]*url\('\/fonts\/Graphik-Regular\.woff2'\)[^}]*font-weight:\s*400/s);
+  assert.match(css, /--font-display:\s*'Graphik', 'Inter', sans-serif/);
+});
+
+test('google-hosted fonts emit no @font-face', () => {
+  assert.doesNotMatch(buildCss(canon), /@font-face/);
+});

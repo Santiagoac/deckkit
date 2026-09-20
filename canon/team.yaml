@@ -1,3 +1,4 @@
-# People shown on the team slide. Ask before adding someone's photo.
-# - { id: ana, name: "Ana García", role: "CEO", photo: /assets/team/ana.jpg }
+# People shown on the team slide. A photo is personal data: each entry needs consent: true,
+# recorded after the person said yes. Without it the build fails.
+# - { id: ana, name: "Ana García", role: "CEO", photo: /assets/team/ana.jpg, consent: true }
 []

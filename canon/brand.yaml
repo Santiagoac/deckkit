@@ -29,7 +29,10 @@ typography:
   display: { family: Inter, source: google, weights: [400, 500, 700] }
   body:    { family: Inter, source: google, weights: [400, 500] }
   mono:    { family: 'JetBrains Mono', source: google, weights: [400] }
-  # true = your fonts are licensed. They will NOT be committed to git.
+  # Licensed fonts: set licensed: true, source: local, and list files per weight:
+  #   display: { family: Graphik, source: local, weights: [400, 500],
+  #              files: { 400: Graphik-Regular.woff2, 500: Graphik-Medium.woff2 }, fallback: Inter }
+  # Put the .woff2 files in public/fonts/ (gitignored). Others see the fallback.
   licensed: false
 
 logo:

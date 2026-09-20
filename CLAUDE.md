@@ -2,6 +2,32 @@
 
 A sales deck as a web project. Presents like PowerPoint, shares like a link.
 
+## Start here
+
+This repo sets itself up for one company before any slide is written. **Before
+anything else**, read `canon/onboarding.yaml` and run `npm run check`. Tell the
+person which steps are done and which comes next, in their language, in a short
+paragraph. If any step is not `done`, your first action is to invoke the
+`deck-onboarding` skill — it resumes where things were left. Never redo a `done`
+step unless asked.
+
+The path, in order:
+
+```
+0. Orient           read canon/onboarding.yaml, say where we are
+1. Company          what you sell, to whom, in one line          [required]
+2. Brand            palette, type, logo → brand book              [required]
+3. Resources        website, old decks, images                    [optional]
+4. People & proof   team, customers, investors, facts             [optional]
+5. Voice            banned words, disclaimers, tagline            [required]
+6. First deck       pick an audience, write slides
+7. Publish          exposure review, host, verify live
+```
+
+Steps 6 and 7 have their own skills (`deck-authoring`, `deck-publish`) when present;
+until then, follow the editing guide below and `npm run check` tells you if the
+canon is complete enough to start.
+
 ## Rules that don't bend
 
 1. **Never write a color.** Pick a `background` and an `accent`; the system supplies the color. Palette lives only in `canon/brand.yaml`.
@@ -111,6 +137,3 @@ npm install && npm run dev
 
 `npm run build` runs the content validation; if it passes, the deck is sound. `npm test` runs the canon generator's tests.
 
-## Coming next
-
-The guided onboarding (`deck-onboarding`) is not here yet. Until it lands, fill `canon/brand.yaml` by hand — the file is commented.

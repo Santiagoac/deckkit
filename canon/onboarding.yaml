@@ -1,0 +1,9 @@
+# canon/onboarding.yaml — where setup stands. The deck-onboarding skill and
+# `npm run check` both read this; the skill updates it as steps finish.
+# Statuses: pending · partial · done. Required to write slides: company, brand, voice.
+steps:
+  company: pending
+  brand: pending
+  resources: pending
+  people-and-proof: pending
+  voice: pending

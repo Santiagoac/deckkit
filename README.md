@@ -49,6 +49,11 @@ Phase 1 — the engine — is what you're looking at. Coming next:
 
 Design notes: [`docs/design.md`](docs/design.md).
 
+## Credits
+
+Brand interviews and color tooling come from [brand-book-generator](.claude/skills/brand-book-generator/),
+a Claude Code skill by Santiago Aceves, vendored here under the same MIT license.
+
 ## License
 
 MIT.

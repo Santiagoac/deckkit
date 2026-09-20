@@ -1,0 +1,11 @@
+# Every hard number in a slide resolves against this file through <Fact id="..." />.
+# No source and review date, no entry. Expired facts fail the build (phase 2).
+#
+# - id: customers
+#   value: "+120"
+#   label: "Customers"
+#   source: "Internal CRM export"
+#   reviewedOn: 2026-09-01
+#   validForDays: 180
+#   usage: [sales, marketing]      # `internal` = never shown in an external deck
+[]

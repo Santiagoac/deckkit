@@ -1,0 +1,29 @@
+---
+import type { BACKGROUNDS, ACCENTS } from '../content.config';
+
+interface Props {
+  background: (typeof BACKGROUNDS)[number];
+  accent?: (typeof ACCENTS)[number];
+  footer?: string;
+  notes?: string;
+  noFooter?: boolean;
+  centered?: boolean;
+}
+const { background, accent = 'azul', footer, notes, noFooter = false, centered = false } = Astro.props;
+---
+<section class:list={['slide', `bg-${background}`, `accent-${accent}`]} data-notes={notes}>
+  <div class:list={['slide__body', centered && 'slide__body--centered']}>
+    <slot />
+  </div>
+  {!noFooter && (
+    <footer class="slide__footer">
+      <span class="slide__footer-text">{footer}</span>
+      <span class="slide__footer-brand">
+        <span class="slide__footer-logo" role="img" aria-label="Moffin"></span>
+      </span>
+    </footer>
+  )}
+</section>
+<style>
+  .slide__body--centered { align-items: center; text-align: center; }
+</style>

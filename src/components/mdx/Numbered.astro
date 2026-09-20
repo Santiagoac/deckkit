@@ -1,0 +1,24 @@
+---
+interface Props { n: number }
+const { n } = Astro.props;
+---
+<li class="numbered">
+  <span class="numbered__n" aria-hidden="true">({n})</span>
+  <span class="numbered__text"><slot /></span>
+</li>
+<style>
+  .numbered {
+    display: grid; grid-template-columns: auto 1fr;
+    gap: var(--sp-3); align-items: baseline;
+  }
+  .numbered__n {
+    font-family: var(--font-mono); font-weight: 400;
+    font-size: var(--t-numero); line-height: 1;
+    color: var(--fg); opacity: 0.55;
+  }
+  .numbered__text { font-size: var(--t-lead); line-height: 1.4; }
+  .numbered__text :global(strong) { font-weight: 700; }
+  @media (max-width: 720px) {
+    .numbered { gap: var(--sp-2); }
+  }
+</style>

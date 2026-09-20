@@ -1,0 +1,35 @@
+---
+import { getEntry } from 'astro:content';
+
+interface Props { id: string; mostrar?: 'valor' | 'completo' }
+const { id, mostrar = 'valor' } = Astro.props;
+
+const fact = await getEntry('facts', id);
+if (!fact) {
+  throw new Error(
+    `El dato "${id}" no existe en src/content/hechos.yaml.\n` +
+    `Ningún número va suelto en una slide: agrégalo al registro con su fuente y fecha de revisión.`,
+  );
+}
+
+// Expiry: the blocking eval lands in phase 2; for now we warn at build time.
+const expires = new Date(fact.data.reviewedOn);
+expires.setDate(expires.getDate() + fact.data.validForDays);
+if (expires < new Date()) {
+  console.warn(`[facts] "${id}" expired on ${expires.toISOString().slice(0, 10)} (source: ${fact.data.source}). Review it.`);
+}
+if (fact.data.usage.includes('internal') && !fact.data.usage.includes('sales')) {
+  throw new Error(
+    `El dato "${id}" viene de una fuente de uso interno (${fact.data.source}) y no puede aparecer en una slide de ventas.\n` +
+    `moffin-voz §5 prohíbe Atradius, Coface y Kontempo en footerzas externas.`,
+  );
+}
+---
+{mostrar === 'completo' ? (
+  <span class="dato"><span class="fact__value">{fact.data.value}</span> {fact.data.label}</span>
+) : (
+  <span class="fact__value">{fact.data.value}</span>
+)}
+<style>
+  .fact__value { font-weight: 700; }
+</style>

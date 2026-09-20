@@ -1,0 +1,13 @@
+---
+/** Slide title.
+ *  If the text carries <strong>, the first part renders regular and only the
+ *  marked part bold. Inferred from content so a slide never declares type weights. */
+interface Props { text: string; display?: boolean; as?: 'h1' | 'h2' }
+const { text, display = false, as = 'h2' } = Astro.props;
+const mixed = text.includes('<strong>');
+const Tag = as;
+---
+<Tag
+  class:list={['title', display && 'title--display', mixed && 'title--mixed']}
+  set:html={text}
+/>

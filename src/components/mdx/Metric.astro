@@ -1,0 +1,45 @@
+---
+import Fact from './Fact.astro';
+interface Props { id: string }
+const { id } = Astro.props;
+import { getEntry } from 'astro:content';
+const fact = await getEntry('facts', id);
+const etiqueta = fact?.data.label ?? '';
+const [first, ...rest] = etiqueta.split(' ');
+---
+<div class="metric">
+  <p class="metric__label">
+    <span class="metric__label-1">{first}</span>
+    {rest.length > 0 && <span class="metric__label-2">{rest.join(' ')}</span>}
+  </p>
+  <p class="metric__value"><Fact id={id} /></p>
+</div>
+<style>
+  .metric {
+    position: relative; padding: var(--sp-4) var(--sp-3);
+    display: flex; flex-direction: column; gap: var(--sp-2);
+  }
+  /* Corner marks framing each metric */
+  .metric::before, .metric::after {
+    content: ''; position: absolute; width: 24px; height: 24px;
+    border-color: var(--accent-visible); border-style: solid;
+  }
+  .metric::before { top: 0; left: 0; border-width: 2px 0 0 2px; }
+  .metric::after { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+  .metric__label {
+    margin: 0; font-family: var(--font-mono); font-weight: 400;
+    font-size: var(--t-metric-etiqueta); line-height: 1.25; color: var(--fg);
+    display: flex; flex-direction: column;
+  }
+  .metric__label-2 { font-family: var(--font-body); }
+  .metric__value {
+    margin: 0; font-size: var(--t-metric); font-weight: 700; line-height: 1;
+  }
+  .metric__value :global(.fact__value) { font-weight: 700; }
+  @media (max-width: 720px) {
+    /* The box hugs its content so the marks frame the metric rather than the
+       screen width. `ch` is no use here: it measures the inherited font, not the number. */
+    .metric { width: fit-content; min-width: min(100%, 240px); }
+    .metric__value { white-space: nowrap; }
+  }
+</style>

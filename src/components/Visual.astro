@@ -1,0 +1,38 @@
+---
+
+// Register your own product mockups here: { MyMockup } from './mockups/MyMockup.astro'
+const MOCKUPS: Record<string, (props: Record<string, unknown>) => unknown> = {};
+
+interface Props {
+  visual?: { type: string; src?: string; alt?: string; component?: string; framing?: string };
+}
+const { visual } = Astro.props;
+if (visual?.type === 'mockup' && !(visual.component! in MOCKUPS)) {
+  throw new Error(
+    `Unknown mockup "${visual.component}". Add a component under src/components/mockups/ and register it in Visual.astro. Available: ${Object.keys(MOCKUPS).join(', ') || '(none yet)'}`,
+  );
+}
+const Mockup = visual?.type === 'mockup'
+  ? MOCKUPS[visual.component!]
+  : null;
+---
+{visual?.type === 'image' && (
+  <div class:list={['visual', visual.framing === 'bleed' && 'visual--bleed']}>
+    <img src={visual.src} alt={visual.alt ?? ''} loading="eager" decoding="async" />
+  </div>
+)}
+{Mockup && <div class="visual visual--mockup"><Mockup /></div>}
+<style>
+  .visual { display: grid; place-items: center; min-width: 0; min-height: 0; height: 100%; }
+  /* A mockup does not float centered: it fills the panel */
+  .visual--mockup { place-items: stretch; }
+  .visual :global(img) { max-height: 100%; width: auto; object-fit: contain; }
+  .visual--bleed :global(img) { width: 100%; max-height: none; }
+  @media (max-width: 720px) {
+    /* Bleed: at 375px every trimmed margin is height the image gains. */
+    .visual { margin-inline: calc(var(--sp-3) * -1); }
+    /* A mockup touching the screen edge looks broken; a photo does not. */
+    .visual--mockup { margin-inline: 0; }
+    .visual :global(img) { max-height: 100%; width: 100%; object-fit: contain; }
+  }
+</style>

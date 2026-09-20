@@ -1,0 +1,8 @@
+# How this brand talks. `npm run evals` checks every slide against `banned`.
+language: en
+tone: []                 # 3–5 adjectives, e.g. [clear, direct, warm]
+banned: []               # - { term: guarantee, use_instead: "informs your decision", why: "legal: we inform, we don't assure", strict: false }
+                         #   strict: true also bans it inside <Quote> (the customer's own words)
+required: []             # - { when: "a slide mentions pricing", text: "Prices exclude VAT." }  (checked by a reviewer, not the eval)
+tagline: ""
+glossary: []             # - { internal: KYB, customer: "business verification" }

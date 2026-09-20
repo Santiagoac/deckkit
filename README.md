@@ -11,12 +11,15 @@ slide that doesn't fit the screen.
 
 ## Quick start
 
-```bash
-npm install
-npm run dev        # http://localhost:4321
-```
+1. Click **Use this template**, clone your copy, `npm install`.
+2. Open the folder in Claude Code and say **"start"**. The `deck-onboarding`
+   skill interviews you — company, brand, old decks, team, voice — and fills
+   `canon/` for you. Stop whenever; it resumes where you left off.
+3. `npm run check` tells you when you can write slides. `npm run dev` shows them
+   at `http://localhost:4321`. Press `→` to move, `P` for presentation mode, `O` for the grid.
 
-Open `/demo`. Press `→` to move, `P` for presentation mode, `O` for the grid.
+Have an old deck as a PDF? `npm run import-deck -- path/to/deck.pdf` turns every
+page into a slide draft you review with the skill (needs poppler: `brew install poppler`).
 
 ## How it works
 
@@ -37,15 +40,22 @@ If a color pair can't be read, the build tells you which one and why.
 of git (`.gitignore` already covers the folder). Load them locally; the CSS font
 stack falls back gracefully for anyone who clones without them.
 
+## What the repo refuses
+
+- A color outside your palette, or a text/background pair below WCAG AA (`npm run canon`).
+- A slide with an unknown template, background or accent (`npm run build`).
+- A team photo without `consent: true`, a customer logo without `permission: true` (`npm run build`).
+- A word you banned in `canon/voice.yaml`, or a fact past its review date (`npm run evals`).
+
+CI runs all of it on every push.
+
 ## Status
 
-Phase 1 — the engine — is what you're looking at. Coming next:
+Done: the engine, the canon build with its gates, the evals, `import-deck`, and
+the `deck-onboarding` skill. Coming next:
 
-1. Evals in CI: brand, voice and facts gates.
-2. `deck-onboarding`: a guided setup in Claude Code that interviews you (company,
-   brand, existing decks, team, proof, voice) and fills `canon/` for you.
-3. `deck-authoring` and `deck-publish`: write slides against your canon, then
-   ship to Netlify or Vercel with an exposure review first.
+1. `deck-authoring`: write slides against your canon, with the onboarding gate.
+2. `deck-publish`: exposure review, Netlify/Vercel, headers, verify live.
 
 Design notes: [`docs/design.md`](docs/design.md).
 

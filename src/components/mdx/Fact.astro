@@ -20,8 +20,7 @@ if (expires < new Date()) {
 }
 if (fact.data.usage.includes('internal') && !fact.data.usage.includes('sales')) {
   throw new Error(
-    `El dato "${id}" viene de una fuente de uso interno (${fact.data.source}) y no puede aparecer en una slide de ventas.\n` +
-    `moffin-voz §5 prohíbe Atradius, Coface y Kontempo en footerzas externas.`,
+    `El dato "${id}" viene de una fuente de uso interno (${fact.data.source}) y no puede aparecer en una slide de ventas.\n`,
   );
 }
 ---

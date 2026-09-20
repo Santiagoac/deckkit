@@ -1,0 +1,5 @@
+# A deck is an audience. It only lists slides — it never copies them.
+name: Demo
+audience: anyone
+status: published
+slides: [cover, problem, closing]

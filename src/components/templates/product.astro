@@ -1,0 +1,53 @@
+---
+import Slide from '../Slide.astro';
+import Title from '../Title.astro';
+import Visual from '../Visual.astro';
+interface Props { background: any; accent?: any; title: string; footer?: string; notes?: string; visual?: any }
+const { background, accent, title, footer, notes, visual } = Astro.props;
+---
+<Slide background={background} accent={accent} footer={footer} notes={notes}>
+  <div class="product">
+    <div class="product__text">
+      <Title text={title} />
+      <slot />
+    </div>
+    <div class="product__panel">
+      <Visual visual={visual} />
+    </div>
+  </div>
+</Slide>
+<style>
+  .product {
+    display: grid; grid-template-columns: 0.75fr 1.25fr;
+    gap: var(--sp-6); align-items: center; min-height: 0;
+  }
+  .product > * { min-width: 0; }
+  .product__text {
+    display: flex; flex-direction: column; gap: var(--sp-3);
+    color: var(--ink); --fg: var(--ink);
+  }
+  .product__panel {
+    background: var(--panel-bg); color: var(--panel-fg);
+    border-radius: 16px 16px 16px 0;
+    padding: var(--sp-4); height: 100%; min-height: 0;
+    display: grid; place-items: center;
+  }
+  @media (max-width: 900px) {
+    /* The panel hugs the mockup instead of stretching: no dead color block.
+       If it still does not fit, the slide's auto-fit lowers the scale. */
+    .product {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+      gap: var(--sp-3); align-content: center;
+    }
+    .product__panel { padding: var(--sp-3); height: auto; min-height: 0; }
+  }
+  @media (max-width: 720px) {
+    /* Full-bleed panel: at 375px the side margins are lost height */
+    .product__panel {
+      margin-inline: calc(var(--sp-3) * -1);
+      border-radius: 12px 12px 12px 0;
+      padding: var(--sp-2);
+    }
+  }
+</style>

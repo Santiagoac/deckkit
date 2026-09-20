@@ -2,7 +2,7 @@
  *  Palette custom properties, spacing scale, global chrome tokens, and one class
  *  per background and per accent carrying the semantic variables the templates
  *  use. Fails the build when text would not reach WCAG AA. */
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadCanon, resolveRef } from './lib/canon.mjs';
@@ -96,11 +96,38 @@ export function buildCss(canon) {
   return L.join('\n') + '\n';
 }
 
+/** A text wordmark used until the founder drops in a real logo. Transparent
+ *  canvas, brand name only — never something that could pass for a real mark. */
+export function placeholderLogo(name, ink) {
+  const safe = String(name).replace(/[<>&"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
+  const width = Math.max(120, safe.length * 34 + 24);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} 64" width="${width}" height="64" role="img" aria-label="${safe}">` +
+    `<text x="12" y="46" font-family="Inter, system-ui, sans-serif" font-size="44" font-weight="700" letter-spacing="-0.5" fill="${ink}">${safe}</text></svg>\n`;
+}
+
+/** Writes canon.logo.dark / .light only when those files do not exist yet. */
+export function ensurePlaceholderLogos(canon, root) {
+  const chrome = chromeTokens(canon.palette, canon.accents);
+  const created = [];
+  for (const [variant, ink] of [['dark', chrome.ink], ['light', chrome.paper]]) {
+    const rel = canon.logo?.[variant]; if (!rel) continue;
+    const abs = join(root, 'public', rel.replace(/^\//, ''));
+    if (existsSync(abs)) continue;
+    mkdirSync(dirname(abs), { recursive: true });
+    writeFileSync(abs, placeholderLogo(canon.name, ink));
+    created.push(rel);
+  }
+  return created;
+}
+
 const runningAsScript = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (runningAsScript) {
   const root = join(dirname(fileURLToPath(import.meta.url)), '..');
   const out = join(root, 'src', 'styles', 'tokens.generated.css');
   mkdirSync(dirname(out), { recursive: true });
-  writeFileSync(out, buildCss(loadCanon(root)));
+  const canon = loadCanon(root);
+  writeFileSync(out, buildCss(canon));
   console.log(`canon -> ${out}`);
+  const made = ensurePlaceholderLogos(canon, root);
+  if (made.length) console.log(`placeholder logos -> ${made.join(', ')} (replace with your own)`);
 }

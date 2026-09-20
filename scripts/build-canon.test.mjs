@@ -62,3 +62,13 @@ test('fails when no text color reaches AA on a dark background', () => {
     accents: { g: { strong: 'gray.400', soft: 'gray.400' } } };
   assert.throws(() => buildCss(bad), /AA/);
 });
+
+import { placeholderLogo } from './build-canon.mjs';
+
+test('placeholderLogo renders the brand name in the requested ink on a transparent canvas', () => {
+  const svg = placeholderLogo('Acme', '#221F1C');
+  assert.match(svg, /^<svg /);
+  assert.match(svg, />Acme</);
+  assert.match(svg, /fill="#221F1C"/);
+  assert.doesNotMatch(svg, /<rect/);
+});

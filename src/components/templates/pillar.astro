@@ -1,0 +1,35 @@
+---
+import Slide from '../Slide.astro';
+import Visual from '../Visual.astro';
+interface Props { background: any; accent?: any; title: string; eyebrow?: string; footer?: string; notes?: string; visual?: any }
+const { background, accent, title, eyebrow, footer, notes, visual } = Astro.props;
+---
+<Slide background={background} accent={accent} footer={footer} notes={notes}>
+  <div class:list={["duo", "duo--visual-wide", !visual && "duo--solo"]}>
+    <div class="pillar">
+      <h2 class="pillar__title">
+        {eyebrow && <span class="pillar__n" aria-hidden="true">({eyebrow})</span>}
+        <span set:html={title} />
+      </h2>
+      <slot />
+    </div>
+    {visual && <div class="duo__visual"><Visual visual={visual} /></div>}
+  </div>
+</Slide>
+<style>
+  .pillar { display: flex; flex-direction: column; gap: var(--sp-5); }
+  .pillar__title {
+    margin: 0; font-size: var(--t-h1); font-weight: 700; line-height: 1.2;
+    display: grid; grid-template-columns: auto 1fr; gap: var(--sp-2); align-items: baseline;
+  }
+  .pillar__n {
+    font-family: var(--font-mono); font-weight: 400; color: var(--fg); opacity: 0.45;
+  }
+  @media (max-width: 720px) {
+    /* The number beside it leaves the title a ~200px column. Above it, the title
+       uses the full 375px and drops from three lines to two. */
+    .pillar__title { grid-template-columns: 1fr; gap: 0; }
+    .pillar__n { font-size: var(--t-numero); line-height: 1.1; }
+  }
+  @media (max-width: 900px) { .pillar { gap: var(--sp-4); } }
+</style>

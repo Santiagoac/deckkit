@@ -1,0 +1,32 @@
+---
+import Slide from '../Slide.astro';
+import Title from '../Title.astro';
+import Visual from '../Visual.astro';
+interface Props {
+  background: any; accent?: any; title: string; eyebrow?: string; footer?: string; notes?: string; visual?: any;
+}
+const { background, accent, title, eyebrow, footer, notes, visual } = Astro.props;
+---
+<Slide background={background} accent={accent} footer={footer} notes={notes}>
+  <div class="duo">
+    <div class="duo__visual"><Visual visual={visual} /></div>
+    <div class="closing">
+      {eyebrow && <p class="closing__eyebrow">{eyebrow}</p>}
+      <Title text={title} />
+      <div class="closing__contact"><slot /></div>
+    </div>
+  </div>
+</Slide>
+<style>
+  .closing { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .closing__eyebrow {
+    margin: 0; font-size: var(--t-h2); font-weight: 400; color: var(--accent-visible);
+  }
+  .closing__contact {
+    margin-top: var(--sp-5); display: flex; flex-direction: column; gap: var(--sp-1);
+    font-size: var(--t-lead);
+  }
+  .closing__contact :global(p) { margin: 0; }
+  .closing__contact :global(strong) { font-weight: 500; }
+  .closing__contact :global(a) { color: var(--fg); text-decoration-thickness: 1px; text-underline-offset: 4px; }
+</style>

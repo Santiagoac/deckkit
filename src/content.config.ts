@@ -69,4 +69,14 @@ const facts = defineCollection({
   }),
 });
 
-export const collections = { slides, decks, facts };
+const team = defineCollection({
+  loader: file('./canon/team.yaml'),
+  schema: z.object({ id: z.string(), name: z.string(), role: z.string(), photo: z.string() }),
+});
+
+const logos = defineCollection({
+  loader: file('./canon/logos.yaml'),
+  schema: z.object({ id: z.string(), group: z.enum(['customers', 'investors']), src: z.string(), alt: z.string() }),
+});
+
+export const collections = { slides, decks, facts, team, logos };

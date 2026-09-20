@@ -1,0 +1,56 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import Presentation from '../layouts/Presentation.astro';
+
+import cover from '../components/templates/cover.astro';
+import statement from '../components/templates/statement.astro';
+import numberedSplit from '../components/templates/numbered-split.astro';
+import pillar from '../components/templates/pillar.astro';
+import metrics from '../components/templates/metrics.astro';
+import product from '../components/templates/product.astro';
+import team from '../components/templates/team.astro';
+import logoWall from '../components/templates/logo-wall.astro';
+import closing from '../components/templates/closing.astro';
+
+import Numbered from '../components/mdx/Numbered.astro';
+import Bullet from '../components/mdx/Bullet.astro';
+import List from '../components/mdx/List.astro';
+import Fact from '../components/mdx/Fact.astro';
+import Metric from '../components/mdx/Metric.astro';
+import Quote from '../components/mdx/Quote.astro';
+
+const TEMPLATES = {
+  'cover': cover, 'statement': statement, 'numbered-split': numberedSplit,
+  'pillar': pillar, 'metrics': metrics, 'product': product, 'team': team,
+  'logo-wall': logoWall, 'closing': closing,
+} as const;
+
+/** Vocabulary available inside .mdx files, with nothing to import. */
+const MDX_COMPONENTS = { Numbered, Bullet, List, Fact, Metric, Quote };
+
+export async function getStaticPaths() {
+  const decks = await getCollection('decks', (r) => r.data.status === 'published');
+  return decks.map((r) => ({ params: { deck: r.id }, props: { deck: r } }));
+}
+
+const { deck } = Astro.props;
+
+const slides = await Promise.all(
+  deck.data.slides.map(async (ref) => {
+    const entry = await getEntry(ref);
+    if (!entry) throw new Error(`Deck "${deck.id}" points to slide "${ref.id}", which does not exist.`);
+    const { Content } = await render(entry);
+    return { data: entry.data, Content };
+  }),
+);
+---
+<Presentation title={deck.data.name}>
+  {slides.map(({ data, Content }) => {
+    const Template = TEMPLATES[data.template];
+    return (
+      <Template {...data}>
+        <Content components={MDX_COMPONENTS} />
+      </Template>
+    );
+  })}
+</Presentation>

@@ -1,0 +1,53 @@
+---
+import '../styles/tokens.generated.css';
+import '../styles/base.css';
+import { loadCanon } from '../../scripts/lib/canon.mjs';
+
+const canon = loadCanon(process.cwd());
+// Google-hosted families get one stylesheet link; licensed ones load locally (see README).
+const google = Object.values(canon.typography)
+  .filter((f): f is { family: string; source: string; weights?: number[] } => typeof f === 'object' && f !== null && (f as any).source === 'google')
+  .map((f) => `family=${encodeURIComponent(f.family)}:wght@${(f.weights ?? [400]).join(';')}`);
+const fontsHref = google.length ? `https://fonts.googleapis.com/css2?${google.join('&')}&display=swap` : null;
+
+interface Props { title: string }
+const { title } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} </title>
+    <meta name="description" content="" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/assets/logo-dark.svg" />
+    {fontsHref && <link rel="stylesheet" href={fontsHref} />}
+  </head>
+  <body>
+    <div class="progress"><div class="progress__bar"></div></div>
+
+    <div class="topbar" aria-label="Deck navigation">
+      <a class="topbar__home" href="/">← Decks</a>
+      <span class="topbar__title">{title}</span>
+    </div>
+
+    <main class="deck" data-mode="normal">
+      <slot />
+    </main>
+
+    <nav class="controls" aria-label="Deck controls">
+      <button type="button" data-action="overview" aria-label="All slides (O)">▦</button>
+      <button type="button" data-action="prev" aria-label="Slide prev">←</button>
+      <span class="controls__counter" aria-live="polite">1 / 1</span>
+      <button type="button" data-action="next" aria-label="Slide next">→</button>
+      <button type="button" data-action="present" aria-label="Mode presentación (P)">⛶</button>
+    </nav>
+
+    <aside class="notes" aria-label="Speaker notes"></aside>
+
+    <script>
+      import '../deck/runtime.ts';
+    </script>
+  </body>
+</html>

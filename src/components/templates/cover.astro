@@ -1,0 +1,14 @@
+---
+import Slide from '../Slide.astro';
+interface Props { background: any; accent?: any; title: string; notes?: string }
+const { background, accent, title, notes } = Astro.props;
+---
+<Slide background={background} accent={accent} notes={notes} noFooter centered>
+  <span class="cover__logo" role="img" aria-label={title}></span>
+</Slide>
+<style>
+  .cover__logo {
+    display: block; width: min(52cqi, 620px); aspect-ratio: 1000 / 260;
+    background: var(--logo) no-repeat center / contain;
+  }
+</style>

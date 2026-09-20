@@ -1,0 +1,64 @@
+---
+import { getCollection } from 'astro:content';
+import '../styles/tokens.generated.css';
+import '../styles/base.css';
+import { loadCanon } from '../../scripts/lib/canon.mjs';
+
+const canon = loadCanon(process.cwd());
+
+const decks = (await getCollection('decks')).sort((a, b) =>
+  a.data.status === b.data.status ? 0 : a.data.status === 'published' ? -1 : 1,
+);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Decks </title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href={canon.logo.dark} />
+  </head>
+  <body>
+    <main class="selector">
+      <img class="selector__logo" src={canon.logo.dark} alt={canon.name} width="220" />
+      <h1 class="selector__title">Decks</h1>
+      <p class="selector__nota">Pick the deck for the room you're walking into.</p>
+      <ul class="selector__list">
+        {decks.map((r) => (
+          <li>
+            {r.data.status === 'published' ? (
+              <a class="tarjeta" href={`/${r.id}`}>
+                <span class="tarjeta__nombre">{r.data.name}</span>
+                <span class="tarjeta__meta">{r.data.slides.length} slides</span>
+              </a>
+            ) : (
+              <span class="tarjeta tarjeta--borrador">
+                <span class="tarjeta__nombre">{r.data.name}</span>
+                <span class="tarjeta__meta">Draft</span>
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </main>
+    <style>
+      body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); }
+      .selector { max-width: 640px; margin: 0 auto; padding: var(--sp-10) var(--sp-3); display: flex; flex-direction: column; gap: var(--sp-2); }
+      .selector__logo { margin-bottom: var(--sp-4); }
+      .selector__title { margin: 0; font-size: 2rem; font-weight: 700; line-height: 1.2; }
+      .selector__nota { margin: 0 0 var(--sp-4); color: color-mix(in srgb, var(--ink) 72%, var(--paper)); }
+      .selector__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+      .tarjeta {
+        display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-2);
+        padding: var(--sp-3); border: 1px solid color-mix(in srgb, var(--ink) 15%, var(--paper)); border-radius: 12px;
+        background: #fff; text-decoration: none; color: inherit;
+      }
+      a.tarjeta:hover { border-color: var(--brand); }
+      a.tarjeta:focus-visible { outline: 2px solid var(--brand-light); outline-offset: 2px; }
+      .tarjeta--borrador { opacity: 0.55; }
+      .tarjeta__nombre { font-weight: 500; }
+      .tarjeta__meta { font-family: var(--font-mono); font-size: 0.875rem; color: color-mix(in srgb, var(--ink) 55%, var(--paper)); }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+---
+import Slide from '../Slide.astro';
+import Title from '../Title.astro';
+import Visual from '../Visual.astro';
+interface Props { background: any; accent?: any; title: string; footer?: string; notes?: string; visual?: any }
+const { background, accent, title, footer, notes, visual } = Astro.props;
+---
+<Slide background={background} accent={accent} footer={footer} notes={notes}>
+  <div class:list={["duo", "duo--text-wide", !visual && "duo--solo"]}>
+    <Title text={title} display as="h1" />
+    {visual && <div class="duo__visual"><Visual visual={visual} /></div>}
+  </div>
+</Slide>

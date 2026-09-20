@@ -1,0 +1,22 @@
+---
+import Slide from '../Slide.astro';
+import Title from '../Title.astro';
+import Visual from '../Visual.astro';
+interface Props { background: any; accent?: any; title: string; closing?: string; footer?: string; notes?: string; visual?: any }
+const { background, accent, title, closing, footer, notes, visual } = Astro.props;
+---
+<Slide background={background} accent={accent} footer={footer} notes={notes}>
+  <div class:list={["duo", "duo--text-wide", !visual && "duo--solo"]}>
+    <div class="block">
+      <Title text={title} />
+      <slot />
+      {closing && <p class="subtitle block__closing" set:html={closing} />}
+    </div>
+    {visual && <div class="duo__visual"><Visual visual={visual} /></div>}
+  </div>
+</Slide>
+<style>
+  .block { display: flex; flex-direction: column; gap: var(--sp-5); }
+  .block__closing { margin: 0; }
+  @media (max-width: 900px) { .block { gap: var(--sp-4); } }
+</style>

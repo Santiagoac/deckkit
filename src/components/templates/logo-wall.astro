@@ -1,0 +1,23 @@
+---
+import Slide from '../Slide.astro';
+import Title from '../Title.astro';
+import { getCollection } from 'astro:content';
+interface Props { background: any; accent?: any; title: string; eyebrow?: string; footer?: string; notes?: string }
+const { background, accent, title, eyebrow, footer, notes } = Astro.props;
+const logos = (await getCollection('logos')).filter((l) => l.data.group === 'investors');
+---
+<Slide background={background} accent={accent} footer={footer} notes={notes}>
+  <div class="duo">
+    <div class="backing">
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <Title text={title} />
+    </div>
+    <div class="duo__visual">
+      {logos.map((l) => <img src={l.data.src} alt={l.data.alt} loading="eager" />)}
+    </div>
+  </div>
+</Slide>
+<style>
+  .backing { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .duo__visual :global(img) { max-height: 100%; width: auto; margin: 0 auto; }
+</style>

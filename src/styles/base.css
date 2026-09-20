@@ -1,0 +1,303 @@
+/* deckkit base styles. Colors come only from tokens.generated.css (canon/brand.yaml). */
+
+:root { font-synthesis: none; }
+
+/* The type scale is measured against the slide container, not the viewport,
+   so the same token works in mobile scroll and in the projector's 16:9. */
+.slide {
+  --t-display-b: clamp(2.25rem, 5.6vw, 6rem);
+  --t-h1-b:      clamp(1.75rem, 4vw, 3.75rem);
+  --t-h2-b:      clamp(1.375rem, 2.6vw, 2.5rem);
+  --t-lead-b:    clamp(1.0625rem, 2vw, 1.875rem);
+  --t-body-b:    clamp(1rem, 1.25vw, 1.1875rem);
+  --t-mini-b:    clamp(0.8125rem, 0.95vw, 0.9375rem);
+  --t-metric-b: clamp(2.5rem, 5vw, 4.5rem);
+  --t-mockup-b:  clamp(0.5rem, 1.05vw, 0.8125rem);
+  --t-numero-b:  clamp(1.75rem, 3.2vw, 2.75rem);
+  --t-metric-etiqueta-b: clamp(1rem, 1.7vw, 1.5rem);
+}
+@supports (font-size: 1cqi) {
+  .slide {
+    --t-display-b: clamp(2.25rem, 5.6cqi, 6rem);
+    --t-h1-b:      clamp(1.75rem, 4cqi, 3.75rem);
+    --t-h2-b:      clamp(1.375rem, 2.6cqi, 2.5rem);
+    --t-lead-b:    clamp(1.0625rem, 2cqi, 1.875rem);
+    --t-body-b:    clamp(1rem, 1.25cqi, 1.1875rem);
+    --t-mini-b:    clamp(0.8125rem, 0.95cqi, 0.9375rem);
+    --t-metric-b: clamp(2.5rem, 5cqi, 4.5rem);
+    --t-mockup-b:  clamp(0.5rem, 1.05cqi, 0.8125rem);
+    --t-numero-b:  clamp(1.75rem, 3.2cqi, 2.75rem);
+    --t-metric-etiqueta-b: clamp(1rem, 1.7cqi, 1.5rem);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; font-family: var(--font-body); font-weight: 400;
+  line-height: 1.5; color: var(--ink); background: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; }
+
+/* ---------- Slide ---------- */
+.slide {
+  container-type: inline-size;
+  container-name: slide;
+  position: relative;
+  display: flex; flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  padding: var(--sp-6) var(--sp-6) var(--sp-4);
+  background: var(--bg); color: var(--fg);
+  scroll-snap-align: start;
+
+  /* Fit factor. The runtime lowers it until the content fits.
+     It scales the tokens, not the box, so text reflows and keeps the full
+     width instead of shrinking into dead margins. */
+  --fit: 1;
+  --t-display: calc(var(--t-display-b) * var(--fit));
+  --t-h1:      calc(var(--t-h1-b) * var(--fit));
+  --t-h2:      calc(var(--t-h2-b) * var(--fit));
+  --t-lead:    calc(var(--t-lead-b) * var(--fit));
+  --t-body:    calc(var(--t-body-b) * var(--fit));
+  --t-mini:    calc(var(--t-mini-b) * var(--fit));
+  --t-metric: calc(var(--t-metric-b) * var(--fit));
+  --t-mockup:  calc(var(--t-mockup-b) * var(--fit));
+  --t-numero:  calc(var(--t-numero-b) * var(--fit));
+  --t-metric-etiqueta: calc(var(--t-metric-etiqueta-b) * var(--fit));
+  --sp-1: calc(8px * var(--fit));  --sp-2: calc(16px * var(--fit));
+  --sp-3: calc(24px * var(--fit)); --sp-4: calc(32px * var(--fit));
+  --sp-5: calc(40px * var(--fit)); --sp-6: calc(48px * var(--fit));
+  --sp-8: calc(64px * var(--fit)); --sp-10: calc(80px * var(--fit));
+  --sp-12: calc(96px * var(--fit));
+}
+.slide__body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+.slide__body > * { min-height: 0; }
+.slide__footer {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: var(--sp-3); padding-top: var(--sp-4);
+  font-size: var(--t-mini); color: var(--fg-soft);
+}
+.slide__footer-logo {
+  display: block;
+  width: clamp(88px, 9cqi, 132px); aspect-ratio: 1000 / 260;
+  background: var(--logo) no-repeat right center / contain;
+}
+/* Phone: its own scale. Values stay multiples of the spacing base, but the
+   rhythm tightens — at 375px the desktop spacing scatters the content. */
+@media (max-width: 720px) {
+  .slide {
+    --sp-1: calc(8px * var(--fit));  --sp-2: calc(8px * var(--fit));
+    --sp-3: calc(16px * var(--fit)); --sp-4: calc(16px * var(--fit));
+    --sp-5: calc(24px * var(--fit)); --sp-6: calc(24px * var(--fit));
+    --sp-8: calc(32px * var(--fit)); --sp-10: calc(32px * var(--fit));
+    --sp-12: calc(40px * var(--fit));
+
+    --t-display: calc(clamp(2rem, 9vw, 2.75rem) * var(--fit));
+    --t-h1:      calc(clamp(1.5rem, 7.2vw, 2rem) * var(--fit));
+    --t-h2:      calc(clamp(1.1875rem, 5.4vw, 1.5rem) * var(--fit));
+    --t-lead:    calc(clamp(0.9375rem, 4.2vw, 1.125rem) * var(--fit));
+    --t-body:    calc(0.9375rem * var(--fit));
+    --t-mini:    calc(0.75rem * var(--fit));
+    --t-metric: calc(clamp(2rem, 11vw, 3rem) * var(--fit));
+    --t-numero:  calc(clamp(1.125rem, 5vw, 1.5rem) * var(--fit));
+    --t-metric-etiqueta: calc(clamp(0.875rem, 4.2vw, 1rem) * var(--fit));
+    --t-mockup:  calc(0.6875rem * var(--fit));
+
+    padding: var(--sp-5) var(--sp-3) var(--sp-3);
+  }
+  /* The footer must clear the controls bar */
+  .slide__footer { padding-bottom: 56px; align-items: center; }
+  .slide__footer-text {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  }
+  .slide__footer-logo { width: 72px; }
+}
+
+/* Two-column grid that stacks on mobile — the base of almost every template */
+.duo {
+  display: grid; gap: var(--sp-6); align-items: center;
+  grid-template-columns: 1fr 1fr; min-height: 0;
+}
+.duo > * { min-width: 0; }
+.duo--text-wide { grid-template-columns: 1.1fr 0.9fr; }
+.duo--visual-wide { grid-template-columns: 0.85fr 1.15fr; }
+@media (max-width: 900px) {
+  .duo, .duo--text-wide, .duo--visual-wide {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: var(--sp-3); align-content: stretch; align-items: stretch; height: 100%;
+  }
+  .duo__visual { order: 2; min-height: 0; }
+}
+/* When even the minimum factor is not enough, the slide scrolls instead of going illegible */
+.slide[data-overflows="si"] { overflow-y: auto; }
+
+/* ---------- Slide typography ---------- */
+.title    { font-family: var(--font-display); font-size: var(--t-h1); font-weight: 700; line-height: 1.2; margin: 0; color: var(--title, var(--fg)); }
+.title--display { font-size: var(--t-display); }
+.subtitle { font-size: var(--t-h2); font-weight: 700; line-height: 1.2; margin: 0; color: var(--title, var(--fg)); }
+.lead      { font-size: var(--t-lead); line-height: 1.5; margin: 0; }
+.eyebrow {
+  font-family: var(--font-mono); font-weight: 400; font-size: var(--t-mini);
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent-visible); margin: 0;
+}
+.title--mixed { font-weight: 400; }
+.title strong, .subtitle strong { font-weight: 700; }
+
+/* ---------- Modes ---------- */
+.deck { scroll-snap-type: y mandatory; overflow-y: auto; height: 100dvh; }
+
+.deck[data-mode="present"] {
+  scroll-snap-type: none; overflow: hidden;
+  display: grid; place-items: center; background: #000;
+}
+.deck[data-mode="present"] .slide {
+  display: none;
+  width: min(100vw, calc(100dvh * 16 / 9));
+  height: min(100dvh, calc(100vw * 9 / 16));
+  min-height: 0;
+  /* Presentation mode is a fixed-ratio canvas: everything scales with the
+     slide, without the clamp() floors of scroll mode. The framing looks the
+     same on a 1920 projector and in a half-size window. */
+  --t-display: calc(5.6cqi * var(--fit)); --t-h1: calc(4cqi * var(--fit));    --t-h2: calc(2.6cqi * var(--fit));
+  --t-lead: calc(2cqi * var(--fit));      --t-body: calc(1.25cqi * var(--fit)); --t-mini: calc(0.95cqi * var(--fit));
+  --t-metric: calc(5cqi * var(--fit));   --t-mockup: calc(1.05cqi * var(--fit));
+  --t-numero: calc(3.2cqi * var(--fit));  --t-metric-etiqueta: calc(1.7cqi * var(--fit));
+  --sp-1: calc(0.55cqi * var(--fit)); --sp-2: calc(1.1cqi * var(--fit));  --sp-3: calc(1.65cqi * var(--fit));
+  --sp-4: calc(2.2cqi * var(--fit));  --sp-5: calc(2.75cqi * var(--fit)); --sp-6: calc(3.3cqi * var(--fit));
+  --sp-8: calc(4.4cqi * var(--fit));  --sp-10: calc(5.5cqi * var(--fit)); --sp-12: calc(6.6cqi * var(--fit));
+}
+.deck[data-mode="present"] .slide[data-active] {
+  display: flex;
+  animation: entra-slide 320ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+/* A short fade with a minimal push. In a meeting a hard cut reads as a
+   projector glitch; anything more than this distracts from the speaker. */
+@keyframes entra-slide {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.deck[data-mode="overview"] {
+  scroll-snap-type: none; overflow-y: auto; background: var(--ink);
+  display: grid; gap: var(--sp-2); padding: var(--sp-3);
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+.deck[data-mode="overview"] .slide {
+  /* The slide pins height:100dvh; the grid must release it or every
+     thumbnail is a full screen tall. */
+  height: auto; min-height: 0; aspect-ratio: 16 / 9; padding: 4cqi 4cqi 3cqi;
+  overflow: hidden; cursor: pointer; border-radius: 8px;
+  outline: 2px solid transparent; transition: outline-color 120ms;
+  /* No clamp() floors, so the thumbnail is proportional rather than a crop */
+  --t-display: calc(5.6cqi * var(--fit)); --t-h1: calc(4cqi * var(--fit));   --t-h2: calc(2.6cqi * var(--fit));
+  --t-lead: calc(2cqi * var(--fit));      --t-body: calc(1.25cqi * var(--fit)); --t-mini: calc(0.95cqi * var(--fit));
+  --t-metric: calc(5cqi * var(--fit));  --t-mockup: calc(1.05cqi * var(--fit));
+  --t-numero: calc(3.2cqi * var(--fit)); --t-metric-etiqueta: calc(1.7cqi * var(--fit));
+  --sp-1: calc(0.6cqi * var(--fit)); --sp-2: calc(1.2cqi * var(--fit)); --sp-3: calc(1.8cqi * var(--fit));
+  --sp-4: calc(2.4cqi * var(--fit)); --sp-5: calc(3cqi * var(--fit));   --sp-6: calc(3.6cqi * var(--fit));
+  --sp-8: calc(4.8cqi * var(--fit)); --sp-10: calc(6cqi * var(--fit));  --sp-12: calc(7.2cqi * var(--fit));
+}
+.deck[data-mode="overview"] .slide[data-active] { outline-color: var(--brand-light); }
+.deck[data-mode="overview"] .slide__footer { display: none; }
+
+/* ---------- Controles ---------- */
+.controls {
+  position: fixed; inset: auto auto var(--sp-3) 50%; transform: translateX(-50%);
+  opacity: 1; transition: opacity 240ms ease;
+  display: flex; align-items: center; gap: var(--sp-1);
+  padding: var(--sp-1); border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 82%, transparent);
+  color: var(--paper); backdrop-filter: blur(8px);
+  font-size: 0.875rem; z-index: 20;
+}
+.controls button {
+  display: grid; place-items: center; width: 32px; height: 32px;
+  border: 0; border-radius: 999px; cursor: pointer;
+  background: transparent; color: inherit; font-size: 1rem;
+}
+.controls button:hover { background: color-mix(in srgb, var(--paper) 18%, transparent); }
+.controls button:focus-visible { outline: 2px solid var(--brand-light); outline-offset: 2px; }
+.controls__counter {
+  font-family: var(--font-mono); padding: 0 var(--sp-1);
+  min-width: 6ch; text-align: center; white-space: nowrap;
+}
+
+/* Hidden from view, but NEVER from clicks: with pointer-events:none the
+   slide behind swallowed the first click after idling. */
+.controls[data-idle] { opacity: 0; }
+.controls:hover, .controls:focus-within { opacity: 1; }
+
+/* Top bar: appears when the cursor reaches the top edge */
+.topbar {
+  position: fixed; inset: 0 0 auto 0; z-index: 22;
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: 10px var(--sp-3) 10px;
+  background: linear-gradient(to bottom,
+    color-mix(in srgb, var(--ink) 88%, transparent), transparent);
+  transform: translateY(-100%); opacity: 0;
+  transition: transform 200ms ease, opacity 200ms ease;
+}
+.topbar[data-visible], .topbar:hover, .topbar:focus-within {
+  transform: none; opacity: 1;
+}
+.topbar__home {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px; border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 82%, transparent);
+  color: var(--paper); text-decoration: none;
+  font-size: 0.875rem; backdrop-filter: blur(8px);
+}
+.topbar__home:hover { background: var(--brand); }
+.topbar__home:focus-visible { outline: 2px solid var(--brand-light); outline-offset: 2px; }
+.topbar__title {
+  color: var(--paper); font-size: 0.875rem; opacity: 0.75;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* Hit zone: invisible, only detects the cursor reaching the top */
+.topbar__zone { position: fixed; inset: 0 0 auto 0; height: 64px; z-index: 21; pointer-events: none; }
+@media (max-width: 720px) {
+  .topbar { padding: 8px var(--sp-3); }
+  .topbar__title { display: none; }
+}
+@media print { .topbar { display: none; } }
+
+@media (max-width: 720px) {
+  .controls {
+    inset: auto 0 0 0; transform: none; width: 100%;
+    justify-content: space-around; border-radius: 0;
+    padding: var(--sp-1) var(--sp-2);
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+  /* On a phone there is no mouse to wake them: always visible */
+  .controls[data-idle] { opacity: 1; pointer-events: auto; }
+  .controls button { width: 44px; height: 44px; }
+}
+
+.progress {
+  position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 21;
+  background: color-mix(in srgb, var(--ink) 25%, transparent);
+}
+.progress__bar { height: 100%; background: var(--brand-light); transition: width 180ms ease-out; }
+
+.notes {
+  position: fixed; inset: auto 0 0 0; z-index: 19;
+  max-height: 30dvh; overflow-y: auto;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--ink); color: var(--paper);
+  border-top: 2px solid var(--brand-light); font-size: 0.9375rem;
+}
+.notes:empty { display: none; }
+
+@media print { .controls, .progress, .notes, .topbar { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

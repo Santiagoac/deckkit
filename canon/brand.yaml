@@ -1,0 +1,39 @@
+# The single source of brand truth. Everything visual is generated from here.
+# Never write a color anywhere else: scripts/build-canon.mjs turns this into CSS.
+
+name: Acme
+
+palette:
+  primary:
+    50: '#EEF6FF'
+    400: '#5B9BE8'
+    700: '#2C5FA8'
+    950: '#12294C'
+  neutral:
+    50: '#F8F7F5'
+    200: '#DCD9D4'
+    800: '#4A4642'
+    950: '#221F1C'
+
+# Valid slide backgrounds. `fg: auto` picks a text color that passes WCAG AA,
+# and the build fails if none of your palette does.
+backgrounds:
+  paper: { bg: neutral.50, fg: auto, logo: dark }
+  deep:  { bg: primary.950, fg: auto, logo: light }
+
+# Valid section accents. On a light background, text takes the accent color.
+accents:
+  blue: { strong: primary.950, soft: primary.700, light: primary.400 }
+
+typography:
+  display: { family: Inter, source: google, weights: [400, 500, 700] }
+  body:    { family: Inter, source: google, weights: [400, 500] }
+  mono:    { family: 'JetBrains Mono', source: google, weights: [400] }
+  # true = your fonts are licensed. They will NOT be committed to git.
+  licensed: false
+
+logo:
+  dark:  /assets/logo-dark.svg    # for light backgrounds
+  light: /assets/logo-light.svg   # for dark backgrounds
+
+spacing_base: 8

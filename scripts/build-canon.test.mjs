@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildCss } from './build-canon.mjs';
+import { mkdtempSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { tmpdir } from 'node:os';
+import { buildCss, invalidateContentStore } from './build-canon.mjs';
 
 const canon = {
   name: 'Acme',
@@ -83,4 +86,23 @@ test('emits @font-face for locally hosted (licensed) fonts', () => {
 
 test('google-hosted fonts emit no @font-face', () => {
   assert.doesNotMatch(buildCss(canon), /@font-face/);
+});
+
+// Astro caches validated content in node_modules/.astro/data-store.json. Editing
+// canon/brand.yaml does not touch any .mdx file, so without this the store is
+// reused and every slide keeps validating against the PREVIOUS canon: rename an
+// accent and the build stays green while every slide references one that is gone.
+test('invalidateContentStore removes the Astro content store and reports it', () => {
+  const root = mkdtempSync(join(tmpdir(), 'canon-store-'));
+  const store = join(root, 'node_modules', '.astro', 'data-store.json');
+  mkdirSync(dirname(store), { recursive: true });
+  writeFileSync(store, '{"slides":"validated against the old canon"}');
+
+  assert.equal(invalidateContentStore(root), true);
+  assert.equal(existsSync(store), false);
+});
+
+test('invalidateContentStore reports false when there is no store to clear', () => {
+  const root = mkdtempSync(join(tmpdir(), 'canon-store-'));
+  assert.equal(invalidateContentStore(root), false);
 });

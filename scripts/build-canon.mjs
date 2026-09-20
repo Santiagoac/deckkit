@@ -2,7 +2,7 @@
  *  Palette custom properties, spacing scale, global chrome tokens, and one class
  *  per background and per accent carrying the semantic variables the templates
  *  use. Fails the build when text would not reach WCAG AA. */
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { writeFileSync, readFileSync, mkdirSync, existsSync, rmSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadCanon, resolveRef } from './lib/canon.mjs';
@@ -131,14 +131,34 @@ export function ensurePlaceholderLogos(canon, root) {
   return created;
 }
 
+/** Astro keeps validated content in node_modules/.astro/data-store.json. Editing
+ *  canon/brand.yaml touches no .mdx file, so the store is reused and slides keep
+ *  validating against the PREVIOUS canon — rename an accent and the build stays
+ *  green while every slide points at one that no longer exists. Clearing the
+ *  store forces the closed lists in src/content.config.ts to be applied again.
+ *  Returns whether there was a store to clear. */
+export function invalidateContentStore(root) {
+  const store = join(root, 'node_modules', '.astro', 'data-store.json');
+  if (!existsSync(store)) return false;
+  rmSync(store);
+  return true;
+}
+
 const runningAsScript = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (runningAsScript) {
   const root = join(dirname(fileURLToPath(import.meta.url)), '..');
   const out = join(root, 'src', 'styles', 'tokens.generated.css');
   mkdirSync(dirname(out), { recursive: true });
   const canon = loadCanon(root);
-  writeFileSync(out, buildCss(canon));
+  const css = buildCss(canon);
+  const previous = existsSync(out) ? readFileSync(out, 'utf8') : null;
+  writeFileSync(out, css);
   console.log(`canon -> ${out}`);
+
+  // Only when the canon actually moved: any change that renames a background or
+  // an accent changes this CSS, and the slides have to face the new closed lists.
+  if (previous !== css && invalidateContentStore(root))
+    console.log('canon changed -> cleared the Astro content cache so slides revalidate');
   const made = ensurePlaceholderLogos(canon, root);
   if (made.length) console.log(`placeholder logos -> ${made.join(', ')} (replace with your own)`);
 }

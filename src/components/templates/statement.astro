@@ -7,7 +7,20 @@ const { background, accent, title, footer, notes, visual } = Astro.props;
 ---
 <Slide background={background} accent={accent} footer={footer} notes={notes}>
   <div class:list={["duo", "duo--text-wide", !visual && "duo--solo"]}>
-    <Title text={title} display as="h1" />
+    <div class="statement">
+      <Title text={title} display as="h1" />
+      <div class="statement__body"><slot /></div>
+    </div>
     {visual && <div class="duo__visual"><Visual visual={visual} /></div>}
   </div>
 </Slide>
+<style>
+  .statement { display: flex; flex-direction: column; gap: var(--sp-5); }
+  /* The supporting line under the claim. Sized from the type scale like every
+     other text component, so it shrinks with --fit and with the overview's
+     container units instead of sitting at the browser default. */
+  .statement__body { font-size: var(--t-lead); line-height: 1.5; }
+  .statement__body:empty { display: none; }
+  .statement__body :global(p) { margin: 0; }
+  .statement__body :global(p + p) { margin-top: var(--sp-3); }
+</style>

@@ -186,7 +186,9 @@ a { color: inherit; }
 
 .deck[data-mode="overview"] {
   scroll-snap-type: none; overflow-y: auto; background: var(--ink);
-  display: grid; gap: var(--sp-2); padding: var(--sp-3);
+  /* align-content: start or the auto-sized rows absorb the leftover viewport
+     height and a band of empty space opens between them. */
+  display: grid; gap: var(--sp-2); padding: var(--sp-3); align-content: start;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 .deck[data-mode="overview"] .slide {
@@ -194,6 +196,9 @@ a { color: inherit; }
      thumbnail is a full screen tall. */
   height: auto; min-height: 0; aspect-ratio: 16 / 9; padding: 4cqi 4cqi 3cqi;
   overflow: hidden; cursor: pointer; border-radius: 8px;
+  /* A hairline, or a slide sitting at --ink is invisible against the backdrop,
+     which is also --ink. On a dark-first canon that is most of the deck. */
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--paper) 14%, transparent);
   outline: 2px solid transparent; transition: outline-color 120ms;
   /* No clamp() floors, so the thumbnail is proportional rather than a crop */
   --t-display: calc(5.6cqi * var(--fit)); --t-h1: calc(4cqi * var(--fit));   --t-h2: calc(2.6cqi * var(--fit));
@@ -206,6 +211,15 @@ a { color: inherit; }
 }
 .deck[data-mode="overview"] .slide[data-active] { outline-color: var(--brand-light); }
 .deck[data-mode="overview"] .slide__footer { display: none; }
+/* Two columns need 2*240 + gap + padding ≈ 512px, which no phone reaches in
+   portrait — so auto-fill collapsed to one column and 1fr stretched it to the
+   full width. The overview stopped being an overview and became the deck,
+   taller. 140px keeps a 16:9 thumbnail recognisable, which is all this asks. */
+@media (max-width: 720px) {
+  .deck[data-mode="overview"] {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
 
 /* ---------- Controles ---------- */
 .controls {

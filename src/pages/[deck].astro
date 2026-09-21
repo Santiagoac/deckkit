@@ -28,6 +28,14 @@ const TEMPLATES = {
 /** Vocabulary available inside .mdx files, with nothing to import. */
 const MDX_COMPONENTS = { Numbered, Bullet, List, Fact, Metric, Quote };
 
+/** Templates with a <slot />. The rest build themselves from the frontmatter or
+ *  the canon, and children handed to them are dropped on the floor — so a body
+ *  written under one of those is silently deleted, which is the one thing this
+ *  repo exists to prevent. Keep in step with the templates themselves. */
+const RENDERS_BODY = new Set([
+  'statement', 'numbered-split', 'pillar', 'metrics', 'product', 'closing',
+]);
+
 export async function getStaticPaths() {
   const decks = await getCollection('decks', (r) => r.data.status === 'published');
   return decks.map((r) => ({ params: { deck: r.id }, props: { deck: r } }));
@@ -39,6 +47,10 @@ const slides = await Promise.all(
   deck.data.slides.map(async (ref) => {
     const entry = await getEntry(ref);
     if (!entry) throw new Error(`Deck "${deck.id}" points to slide "${ref.id}", which does not exist.`);
+    if (entry.body?.trim() && !RENDERS_BODY.has(entry.data.template)) throw new Error(
+      `Slide "${entry.id}" has content below its frontmatter, but template "${entry.data.template}" has no <slot /> — ` +
+      `it would be dropped without a word. Move it into the frontmatter (title, closing, eyebrow), ` +
+      `or use a template that renders a body: ${[...RENDERS_BODY].join(', ')}.`);
     const { Content } = await render(entry);
     return { data: entry.data, Content };
   }),

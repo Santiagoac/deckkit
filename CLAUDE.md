@@ -84,6 +84,18 @@ Anything outside these lists **fails the build and tells you what is valid**. Th
 `<List>` `<Numbered n={1}>` `<Bullet>` `<Fact id="">` `<Metric id="">` `<Quote>`
 
 Nothing else, and nothing to import. `<Quote>` is for the customer's own words.
+Plain prose works too, in the templates that take a body.
+
+### Which templates take a body
+
+Only these render what you write under the frontmatter:
+
+`statement` · `numbered-split` · `pillar` · `metrics` · `product` · `closing`
+
+`cover`, `team` and `logo-wall` build themselves from the frontmatter and the
+canon. Writing a body under one of them **fails the build** and says so — it
+used to be discarded silently, which cost two slides their supporting line in a
+deck that had already shipped.
 
 ## Adding a fact
 

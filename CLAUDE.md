@@ -179,9 +179,32 @@ file silently never ships. Verify with `git add --dry-run .env.example`, not
 with `git check-ignore` — check-ignore exits 0 even when the rule that matched
 is the negation.
 
-Changing the password takes a redeploy. Netlify snapshots the environment into
-each build, so a value set after the last one is invisible to the function
-until something rebuilds.
+### Rotating the index password
+
+Two steps, and skipping the second leaves you believing a lie:
+
+1. Change `DECK_INDEX_PASSWORD` in the Netlify UI.
+2. **Redeploy.** Netlify snapshots the environment into each deploy, so an edge
+   function keeps reading the value from the build it shipped with.
+
+Until that rebuild, **the old password still works and the new one does not.**
+Measured, 45 seconds after changing the value with no redeploy:
+
+```
+password OLD  -> 200
+password NEW  -> 401
+```
+
+And after a rebuild:
+
+```
+password OLD  -> 401
+password NEW  -> 200
+```
+
+So changing the value is half a rotation. If you rotate because a password
+leaked, the leak stays live until something rebuilds — "Trigger deploy" in the
+Netlify UI, or any push.
 
 The top bar's **← Decks** still points at `/`, so a client who clicks it meets
 the password prompt. That is the intended answer, not a dead end.

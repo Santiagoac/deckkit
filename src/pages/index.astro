@@ -2,9 +2,10 @@
 import { getCollection } from 'astro:content';
 import '../styles/tokens.generated.css';
 import '../styles/base.css';
-import { loadCanon } from '../../scripts/lib/canon.mjs';
+import { loadCanon, googleFontsHref } from '../../scripts/lib/canon.mjs';
 
 const canon = loadCanon(process.cwd());
+const fontsHref = googleFontsHref(canon);
 
 const decks = (await getCollection('decks')).sort((a, b) =>
   a.data.status === b.data.status ? 0 : a.data.status === 'published' ? -1 : 1,
@@ -18,10 +19,11 @@ const decks = (await getCollection('decks')).sort((a, b) =>
     <title>Decks </title>
     <meta name="robots" content="noindex" />
     <link rel="icon" href={canon.logo.dark} />
+    {fontsHref && <link rel="stylesheet" href={fontsHref} />}
   </head>
   <body>
     <main class="selector">
-      <img class="selector__logo" src={canon.logo.dark} alt={canon.name} width="220" />
+      <img class="selector__logo" src={canon.logo.dark} alt={canon.name} height="28" />
       <h1 class="selector__title">Decks</h1>
       <p class="selector__nota">Pick the deck for the room you're walking into.</p>
       <ul class="selector__list">
@@ -45,7 +47,16 @@ const decks = (await getCollection('decks')).sort((a, b) =>
     <style>
       body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); }
       .selector { max-width: 640px; margin: 0 auto; padding: var(--sp-10) var(--sp-3); display: flex; flex-direction: column; gap: var(--sp-2); }
-      .selector__logo { margin-bottom: var(--sp-4); }
+      /* Sized by HEIGHT, not width: this is a masthead, not a hero. A fixed
+         width assumed every logo is a wide wordmark — a square monogram at
+         width 220 rendered 220px tall and swallowed the page. Height plus
+         width:auto holds any proportion; max-width only guards a freakishly
+         wide lockup, and object-fit keeps it from squashing if it hits. */
+      .selector__logo {
+        display: block; height: 28px; width: auto;
+        max-width: 240px; object-fit: contain; object-position: left;
+        margin-bottom: var(--sp-6);
+      }
       .selector__title { margin: 0; font-size: 2rem; font-weight: 700; line-height: 1.2; }
       .selector__nota { margin: 0 0 var(--sp-4); color: color-mix(in srgb, var(--ink) 72%, var(--paper)); }
       .selector__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-2); }

@@ -31,3 +31,25 @@ export function loadCanon(root) {
     spacingBase: raw.spacing_base ?? 8,
   };
 }
+
+/** The one <link> that loads every Google-hosted family the canon declares.
+ *  Licensed families load from public/fonts/ via @font-face instead, so they
+ *  are skipped here. Returns null when nothing is Google-hosted.
+ *
+ *  Lives here because every page that renders brand type needs it, and a page
+ *  that forgets it falls back to a system font without any visible error —
+ *  which is exactly what happened to the deck index. */
+export function googleFontsHref(canon) {
+  // display and body are commonly the same family at different weights, so
+  // merge by family or the URL asks Google for it twice.
+  const byFamily = new Map();
+  for (const f of Object.values(canon.typography)) {
+    if (!f || typeof f !== 'object' || f.source !== 'google') continue;
+    const weights = byFamily.get(f.family) ?? new Set();
+    for (const w of f.weights ?? [400]) weights.add(w);
+    byFamily.set(f.family, weights);
+  }
+  const families = [...byFamily].map(([family, weights]) =>
+    `family=${encodeURIComponent(family)}:wght@${[...weights].sort((a, b) => a - b).join(';')}`);
+  return families.length ? `https://fonts.googleapis.com/css2?${families.join('&')}&display=swap` : null;
+}

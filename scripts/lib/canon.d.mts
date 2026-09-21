@@ -9,3 +9,4 @@ export interface Canon {
 }
 export function loadCanon(root: string): Canon;
 export function resolveRef(palette: Canon['palette'], ref: string): string;
+export function googleFontsHref(canon: Canon): string | null;

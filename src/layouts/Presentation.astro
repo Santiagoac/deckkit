@@ -1,14 +1,11 @@
 ---
 import '../styles/tokens.generated.css';
 import '../styles/base.css';
-import { loadCanon } from '../../scripts/lib/canon.mjs';
+import { loadCanon, googleFontsHref } from '../../scripts/lib/canon.mjs';
 
 const canon = loadCanon(process.cwd());
 // Google-hosted families get one stylesheet link; licensed ones load locally (see README).
-const google = Object.values(canon.typography)
-  .filter((f): f is { family: string; source: string; weights?: number[] } => typeof f === 'object' && f !== null && (f as any).source === 'google')
-  .map((f) => `family=${encodeURIComponent(f.family)}:wght@${(f.weights ?? [400]).join(';')}`);
-const fontsHref = google.length ? `https://fonts.googleapis.com/css2?${google.join('&')}&display=swap` : null;
+const fontsHref = googleFontsHref(canon);
 
 interface Props { title: string }
 const { title } = Astro.props;
@@ -21,7 +18,7 @@ const { title } = Astro.props;
     <title>{title} </title>
     <meta name="description" content="" />
     <meta name="robots" content="noindex" />
-    <link rel="icon" href="/assets/logo-dark.svg" />
+    <link rel="icon" href={canon.logo.dark} />
     {fontsHref && <link rel="stylesheet" href={fontsHref} />}
   </head>
   <body>

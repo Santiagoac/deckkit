@@ -1,6 +1,7 @@
 import { defineCollection, reference, z } from 'astro:content';
 import { glob, file } from 'astro/loaders';
 import { loadCanon } from '../scripts/lib/canon.mjs';
+import { SLUG_RE } from '../scripts/lib/slug.mjs';
 
 /** Closed lists. Backgrounds and accents come from canon/brand.yaml, so every
  *  founder gets their own. Writing anything else fails the build and says why. */
@@ -49,6 +50,15 @@ const decks = defineCollection({
   schema: z.object({
     name: z.string(),
     audience: z.string(),
+    // The route. Not the filename: a deck at /contadores implies /inversionistas,
+    // and anyone you send one link to can type the others. Required on purpose —
+    // a deck that forgets it would ship a guessable URL by omission, which is the
+    // failure this exists to prevent. Generate with `npm run deck:slug`.
+    slug: z.string().regex(SLUG_RE, {
+      message: 'A deck slug must be lowercase words plus a 12-character random suffix, '
+        + 'e.g. "contadores-7f3a9c2b1d4e". Run `npm run deck:slug <name>` to generate one, '
+        + 'or `npm run deck:slug --rotate <file>` to revoke a leaked link.',
+    }),
     status: z.enum(['published', 'draft']),
     // reference() makes the build verify every slide id exists.
     slides: z.array(reference('slides')),

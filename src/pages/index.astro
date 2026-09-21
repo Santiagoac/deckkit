@@ -30,7 +30,7 @@ const decks = (await getCollection('decks')).sort((a, b) =>
         {decks.map((r) => (
           <li>
             {r.data.status === 'published' ? (
-              <a class="tarjeta" href={`/${r.id}`}>
+              <a class="tarjeta" href={`/${r.data.slug}`}>
                 <span class="tarjeta__nombre">{r.data.name}</span>
                 <span class="tarjeta__meta">{r.data.slides.length} slides</span>
               </a>

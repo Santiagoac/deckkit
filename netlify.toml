@@ -1,0 +1,31 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# The deck index lists every deck you have. Decks themselves stay open — their
+# URLs carry an unguessable suffix — but the directory of them does not.
+# Set DECK_INDEX_USER and DECK_INDEX_PASSWORD in the Netlify UI.
+[[edge_functions]]
+  function = "protect-index"
+  path = "/"
+
+# A deck is a link you hand to one person. Keep it out of search results; the
+# index already carries <meta name="robots" content="noindex">.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Hashed filenames can be cached forever; HTML must not be, or a rotated slug
+# keeps resolving from someone's cache after you revoked it.
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

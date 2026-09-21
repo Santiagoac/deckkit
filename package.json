@@ -15,7 +15,8 @@
     "test": "node --test \"scripts/**/*.test.mjs\"",
     "check": "node scripts/check.mjs",
     "evals": "node --test \"evals/**/*.test.mjs\"",
-    "import-deck": "node scripts/import-deck.mjs"
+    "import-deck": "node scripts/import-deck.mjs",
+    "deck:slug": "node scripts/deck-slug.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.0",

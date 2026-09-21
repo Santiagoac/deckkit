@@ -38,7 +38,9 @@ const RENDERS_BODY = new Set([
 
 export async function getStaticPaths() {
   const decks = await getCollection('decks', (r) => r.data.status === 'published');
-  return decks.map((r) => ({ params: { deck: r.id }, props: { deck: r } }));
+  // Routed by slug, not by filename: the file stays `contadores.yaml` so you can
+  // find it, while the URL carries a suffix nobody can guess from another deck.
+  return decks.map((r) => ({ params: { deck: r.data.slug }, props: { deck: r } }));
 }
 
 const { deck } = Astro.props;

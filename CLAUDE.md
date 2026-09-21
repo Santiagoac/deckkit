@@ -121,11 +121,47 @@ A deck is an audience. It only lists slides:
 # src/content/decks/investors.yaml
 name: "Investors"
 audience: investors
-status: published      # `draft` stays out of the index
+slug: investors-7f3a9c2b1d4e   # the route — generate it, never type it
+status: published              # `draft` stays out of the index
 slides: [cover, problem, closing]
 ```
 
-Each deck is a route: `/investors`.
+## The URL of a deck
+
+The route is the `slug`, not the filename. The file stays `investors.yaml` so
+you can find it; the URL carries a random suffix so that being handed one deck
+tells you nothing about the others. `/contadores` implies `/investors`.
+`/contadores-5ba6b70dde9b` implies nothing.
+
+```bash
+npm run deck:slug -- "Investors"            # a fresh slug to paste in
+npm run deck:slug -- --rotate investors     # revoke a leaked link, in place
+npm run deck:slug -- --check                # every deck and its URL
+```
+
+**The build refuses a deck without one**, and refuses a bare name like
+`slug: investors` — otherwise a deck would ship a guessable URL by omission,
+which is the whole failure this prevents.
+
+Rotating changes only the suffix. The old link 404s on the next deploy.
+
+**This is obscurity, not authentication.** Whoever holds the link holds it for
+good and can forward it. It stops a client from poking at your other decks; it
+does not make a deck secret. For something that truly must not leave the
+building, do not publish it.
+
+## The index is behind a password
+
+`/` lists every deck you have, so it is the one page that turns "a link someone
+sent me" into "a directory of everything". `netlify/edge-functions/protect-index.js`
+puts Basic Auth in front of it; the decks stay open.
+
+Set `DECK_INDEX_USER` and `DECK_INDEX_PASSWORD` in the Netlify UI. With either
+missing the index returns 503 rather than opening — a missing secret must never
+fail towards "everyone can read it".
+
+The top bar's **← Decks** still points at `/`, so a client who clicks it meets
+the password prompt. That is the intended answer, not a dead end.
 
 ## Presenting
 

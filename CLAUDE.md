@@ -160,6 +160,29 @@ Set `DECK_INDEX_USER` and `DECK_INDEX_PASSWORD` in the Netlify UI. With either
 missing the index returns 503 rather than opening — a missing secret must never
 fail towards "everyone can read it".
 
+### Where the password lives, and where it does not
+
+**Netlify's environment is the only copy production reads.** The edge function
+calls `Netlify.env.get()`, which never sees a file in this repo. A `.env` here
+changes nothing about the deployed site.
+
+To share it with the rest of the team: they read it in the Netlify UI
+(Site configuration → Environment variables), or you keep it in the team
+password manager. **Not in a `.env` in git.** `.env*` is gitignored, so it would
+not reach them anyway — and un-ignoring it would put a live credential in the
+history of a repo, which is the one place a credential can never be taken back
+out of.
+
+`.env.example` exists to name the variables, never to hold values. It needs the
+`!.env.example` line in `.gitignore`: `.env*` swallows it otherwise, and the
+file silently never ships. Verify with `git add --dry-run .env.example`, not
+with `git check-ignore` — check-ignore exits 0 even when the rule that matched
+is the negation.
+
+Changing the password takes a redeploy. Netlify snapshots the environment into
+each build, so a value set after the last one is invisible to the function
+until something rebuilds.
+
 The top bar's **← Decks** still points at `/`, so a client who clicks it meets
 the password prompt. That is the intended answer, not a dead end.
 

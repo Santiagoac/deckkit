@@ -3,6 +3,9 @@ dist/
 .astro/
 .DS_Store
 .env*
+# ...but the example must ship: it is the only place the repo says which
+# variables exist. `.env*` swallows it otherwise, silently.
+!.env.example
 
 # Generated from canon/brand.yaml by scripts/build-canon.mjs — never edit by hand
 src/styles/tokens.generated.css

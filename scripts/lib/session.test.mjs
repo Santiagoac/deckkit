@@ -2,7 +2,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { issue, verify, COOKIE, readCookie } from './session.mjs';
 
-const SECRET = 'REDACTED-ROTATED-CREDENTIAL';
+// Obviously fake, and it has to stay that way. An earlier version of this file
+// used a real site's index password as the fixture; it went into a public repo
+// and had to be rotated. A test fixture is published the moment it is committed.
+const SECRET = 'not-a-real-password-fixture-only';
 
 test('a freshly issued token verifies', async () => {
   const t = await issue(SECRET, 3600, 1000);

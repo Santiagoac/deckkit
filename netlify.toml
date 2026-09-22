@@ -4,7 +4,8 @@
 
 # The deck index lists every deck you have. Decks themselves stay open — their
 # URLs carry an unguessable suffix — but the directory of them does not.
-# Set DECK_INDEX_USER and DECK_INDEX_PASSWORD in the Netlify UI.
+# One password, no username. Set DECK_INDEX_PASSWORD in the Netlify UI, or
+# DECK_INDEX_PUBLIC=true to publish the index with no password.
 [[edge_functions]]
   function = "protect-index"
   path = "/"

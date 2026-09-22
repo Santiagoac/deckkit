@@ -1,0 +1,121 @@
+---
+/** The password screen for the deck index.
+ *
+ *  Served by netlify/edge-functions/protect-index.js, which fetches this page
+ *  and returns it in place of `/` when there is no valid session. It lives here
+ *  rather than as a string inside the edge function so that the brand comes
+ *  from canon/brand.yaml like everything else — a colour typed into a JS file
+ *  is exactly what this repo refuses everywhere else.
+ *
+ *  The edge function flips `data-error` to show the wrong-password message. It
+ *  is rendered in the markup either way so the function only has to swap one
+ *  attribute, never build HTML.
+ */
+import '../styles/tokens.generated.css';
+import '../styles/base.css';
+import { loadCanon, googleFontsHref } from '../../scripts/lib/canon.mjs';
+
+const canon = loadCanon(process.cwd());
+const fontsHref = googleFontsHref(canon);
+const background = Object.entries(canon.backgrounds)
+  // The darkest declared background, so the gate matches the decks rather than
+  // the light index behind it. Falls back to whatever exists.
+  .find(([, b]) => b.logo === 'light')?.[0] ?? Object.keys(canon.backgrounds)[0];
+const accent = Object.keys(canon.accents)[0];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{canon.name} · Decks</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href={canon.logo.dark} />
+    {fontsHref && <link rel="stylesheet" href={fontsHref} />}
+  </head>
+  <body class:list={[`bg-${background}`, `accent-${accent}`]}>
+    <main class="gate">
+      <img class="gate__logo" src={canon.logo.light} alt={canon.name} height="28" />
+
+      <form class="gate__form" method="POST" action="/" data-error="false">
+        <h1 class="gate__title">Decks</h1>
+        <p class="gate__note">Internal. Enter the team password to see the list.</p>
+
+        <label class="gate__label" for="password">Password</label>
+        <input
+          class="gate__input" id="password" name="password" type="password"
+          autocomplete="current-password" required autofocus
+          aria-describedby="gate-error"
+        />
+
+        <p class="gate__error" id="gate-error" role="alert">That password is not right.</p>
+
+        <button class="gate__button" type="submit">Enter</button>
+      </form>
+
+      <p class="gate__foot">A deck you were sent opens without this.</p>
+    </main>
+
+    <style>
+      body {
+        margin: 0; min-height: 100dvh;
+        background: var(--bg); color: var(--fg);
+        font-family: var(--font-body);
+        display: grid; place-items: center;
+        padding: var(--sp-4);
+      }
+      .gate {
+        width: 100%; max-width: 340px;
+        display: flex; flex-direction: column; gap: var(--sp-6);
+      }
+      .gate__logo {
+        display: block; height: 28px; width: auto;
+        max-width: 200px; object-fit: contain; object-position: left;
+      }
+      .gate__form { display: flex; flex-direction: column; gap: var(--sp-2); }
+      .gate__title {
+        margin: 0; font-family: var(--font-display);
+        font-size: 2rem; font-weight: 700; line-height: 1.1; letter-spacing: -0.03em;
+      }
+      .gate__note {
+        margin: 0 0 var(--sp-4);
+        color: var(--fg-soft); font-size: 0.9375rem; line-height: 1.5;
+      }
+      .gate__label {
+        font-family: var(--font-mono); font-size: 0.75rem;
+        text-transform: uppercase; letter-spacing: 0.06em;
+        color: var(--accent-visible);
+      }
+      .gate__input {
+        font-family: var(--font-mono); font-size: 1rem;
+        padding: var(--sp-2) var(--sp-3);
+        color: var(--fg); background: var(--panel-bg);
+        border: 1px solid var(--rule); border-radius: 6px;
+      }
+      .gate__input:focus-visible {
+        outline: 2px solid var(--accent-visible); outline-offset: 2px;
+        border-color: var(--accent-visible);
+      }
+      /* Present in the markup either way: the edge function swaps one
+         attribute instead of assembling HTML. */
+      .gate__error {
+        margin: 0; font-size: 0.875rem; color: var(--accent-visible);
+      }
+      [data-error="false"] .gate__error { display: none; }
+      [data-error="true"] .gate__input { border-color: var(--accent-visible); }
+      .gate__button {
+        margin-top: var(--sp-3);
+        font-family: var(--font-body); font-size: 0.9375rem; font-weight: 600;
+        padding: var(--sp-2) var(--sp-5); border: 0; border-radius: 8px;
+        background: var(--accent-light); color: var(--bg);
+        cursor: pointer; transition: background 150ms ease;
+      }
+      .gate__button:hover { background: var(--accent-soft); }
+      .gate__button:focus-visible { outline: 2px solid var(--accent-visible); outline-offset: 2px; }
+      .gate__foot {
+        margin: 0; font-family: var(--font-mono); font-size: 0.75rem;
+        color: var(--fg-soft); opacity: 0.7;
+      }
+    </style>
+  </body>
+</html>

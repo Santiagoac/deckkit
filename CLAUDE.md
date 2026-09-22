@@ -152,13 +152,34 @@ building, do not publish it.
 
 ## The index is behind a password
 
-`/` lists every deck you have, so it is the one page that turns "a link someone
-sent me" into "a directory of everything". `netlify/edge-functions/protect-index.js`
-puts Basic Auth in front of it; the decks stay open.
+`/` lists every deck you have, with their URLs, so it is the one page that turns
+"a link someone sent me" into "a directory of everything".
+`netlify/edge-functions/protect-index.js` puts a gate in front of it; the decks
+stay open.
 
-Set `DECK_INDEX_USER` and `DECK_INDEX_PASSWORD` in the Netlify UI. With either
-missing the index returns 503 rather than opening — a missing secret must never
-fail towards "everyone can read it".
+**One password, no username.** There is a single team credential, so a username
+that never changes is just another field to get wrong.
+
+**A real page, not the browser's dialog.** `src/pages/gate.astro` takes its
+colours, type and logo from `canon/brand.yaml` like everything else, so the
+first thing anyone sees of your deck site is your brand. The edge function
+fetches that page and flips one attribute to show the wrong-password message —
+it never assembles markup, and no colour is ever typed into JavaScript.
+
+| variable | |
+|---|---|
+| `DECK_INDEX_PASSWORD` | the team password |
+| `DECK_INDEX_PUBLIC` | `"true"` publishes the index with no password at all |
+
+With neither set the index returns 503 rather than opening. A secret that went
+missing must never fail towards "everyone can read it" — publishing the index
+has to be something somebody typed on purpose.
+
+The session is a cookie signed with the password itself
+(`scripts/lib/session.mjs`), which has a useful consequence: **rotating the
+password signs everyone out**, rather than leaving old sessions alive until
+they expire. It lasts 8 hours — a working day, so nobody retypes it after
+lunch, and a borrowed laptop is not open forever.
 
 ### Where the password lives, and where it does not
 

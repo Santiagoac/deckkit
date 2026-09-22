@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "canon": "node scripts/build-canon.mjs",
-    "predev": "npm run canon",
+    "predev": "npm run canon && npm run deck:urls",
     "prebuild": "npm run canon",
     "dev": "astro dev",
     "build": "astro build",
@@ -17,7 +17,9 @@
     "evals": "node --test \"evals/**/*.test.mjs\"",
     "import-deck": "node scripts/import-deck.mjs",
     "deck:slug": "node scripts/deck-slug.mjs",
-    "no-secrets": "node scripts/no-secrets.mjs"
+    "no-secrets": "node scripts/no-secrets.mjs",
+    "deck:urls": "node scripts/deck-urls.mjs",
+    "postbuild": "npm run deck:urls"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.0",

@@ -13,10 +13,13 @@
  */
 import '../styles/tokens.generated.css';
 import '../styles/base.css';
-import { loadCanon, googleFontsHref } from '../../scripts/lib/canon.mjs';
+import { loadCanon, googleFontsHref, loadLanguage } from '../../scripts/lib/canon.mjs';
+import { uiStrings, normalizeLanguage } from '../../scripts/lib/ui.mjs';
 
 const canon = loadCanon(process.cwd());
 const fontsHref = googleFontsHref(canon);
+const lang = normalizeLanguage(loadLanguage(process.cwd()));
+const t2 = uiStrings(lang);
 const background = Object.entries(canon.backgrounds)
   // The darkest declared background, so the gate matches the decks rather than
   // the light index behind it. Falls back to whatever exists.
@@ -24,11 +27,11 @@ const background = Object.entries(canon.backgrounds)
 const accent = Object.keys(canon.accents)[0];
 ---
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{canon.name} · Decks</title>
+    <title>{canon.name} · {t2.decks}</title>
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" href={canon.logo.dark} />
     {fontsHref && <link rel="stylesheet" href={fontsHref} />}
@@ -38,22 +41,22 @@ const accent = Object.keys(canon.accents)[0];
       <img class="gate__logo" src={canon.logo.light} alt={canon.name} height="28" />
 
       <form class="gate__form" method="POST" action="/" data-error="false">
-        <h1 class="gate__title">Decks</h1>
-        <p class="gate__note">Internal. Enter the team password to see the list.</p>
+        <h1 class="gate__title">{t2.decks}</h1>
+        <p class="gate__note">{t2.gateNote}</p>
 
-        <label class="gate__label" for="password">Password</label>
+        <label class="gate__label" for="password">{t2.gateLabel}</label>
         <input
           class="gate__input" id="password" name="password" type="password"
           autocomplete="current-password" required autofocus
           aria-describedby="gate-error"
         />
 
-        <p class="gate__error" id="gate-error" role="alert">That password is not right.</p>
+        <p class="gate__error" id="gate-error" role="alert">{t2.gateError}</p>
 
-        <button class="gate__button" type="submit">Enter</button>
+        <button class="gate__button" type="submit">{t2.gateSubmit}</button>
       </form>
 
-      <p class="gate__foot">A deck you were sent opens without this.</p>
+      <p class="gate__foot">{t2.gateFoot}</p>
     </main>
 
     <style>

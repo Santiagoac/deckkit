@@ -53,3 +53,16 @@ export function googleFontsHref(canon) {
     `family=${encodeURIComponent(family)}:wght@${[...weights].sort((a, b) => a - b).join(';')}`);
   return families.length ? `https://fonts.googleapis.com/css2?${families.join('&')}&display=swap` : null;
 }
+
+/** The language the decks are written in, from canon/voice.yaml. Drives the
+ *  <html lang> attribute and the handful of strings deckkit supplies itself.
+ *  Defaults to English when voice.yaml is absent or silent — the onboarding
+ *  asks for it, but the repo has to build before the onboarding has run. */
+export function loadLanguage(root) {
+  try {
+    const voice = parse(readFileSync(join(root, 'canon', 'voice.yaml'), 'utf8'));
+    return voice?.language ?? 'en';
+  } catch {
+    return 'en';
+  }
+}

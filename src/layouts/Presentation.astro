@@ -1,21 +1,24 @@
 ---
 import '../styles/tokens.generated.css';
 import '../styles/base.css';
-import { loadCanon, googleFontsHref } from '../../scripts/lib/canon.mjs';
+import { loadCanon, googleFontsHref, loadLanguage } from '../../scripts/lib/canon.mjs';
+import { uiStrings, normalizeLanguage } from '../../scripts/lib/ui.mjs';
 
 const canon = loadCanon(process.cwd());
 // Google-hosted families get one stylesheet link; licensed ones load locally (see README).
 const fontsHref = googleFontsHref(canon);
+const lang = normalizeLanguage(loadLanguage(process.cwd()));
+const ui = uiStrings(lang);
 
 interface Props { title: string }
 const { title } = Astro.props;
 ---
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} </title>
+    <title>{title}</title>
     <meta name="description" content="" />
     <meta name="robots" content="noindex" />
     <link rel="icon" href={canon.logo.dark} />
@@ -25,7 +28,7 @@ const { title } = Astro.props;
     <div class="progress"><div class="progress__bar"></div></div>
 
     <div class="topbar" aria-label="Deck navigation">
-      <a class="topbar__home" href="/">← Decks</a>
+      <a class="topbar__home" href="/">{ui.backToDecks}</a>
       <span class="topbar__title">{title}</span>
     </div>
 

@@ -118,6 +118,42 @@ Banned terms are checked on every slide by `npm run evals`. `<Quote>` (the
 customer's own words) is exempt unless the term is `strict: true`. Validate:
 `npm run evals`. Mark `voice: done`.
 
+## 6. The index → `canon/onboarding.yaml` → `index_access`
+
+Ask once, after voice, before they write a deck — because the answer changes
+whether writing an internal deck at all is safe.
+
+Explain the stake in one line, because it is not obvious: **`/` lists every deck
+with its URL**, so an open index hands over the links that the unguessable slugs
+exist to protect. Then ask:
+
+> "Do you want a password on the deck index? Only your team should see the list
+> if you will ever have a deck a client should not find — investors, pricing,
+> roadmap. If every deck you make is for clients anyway, you can leave it open."
+
+**If they want a password**, ask which one they want, and tell them where it
+goes. Then set `index_access: password`.
+
+- **Never write it to a file in this repo.** Not `.env`, not the canon, not a
+  note. `.env*` is gitignored so it would not reach their team anyway, and
+  production does not read it: the edge function reads the host's environment.
+- Tell them the two steps, and that skipping the second leaves the previous
+  password working: set `DECK_INDEX_PASSWORD` in the host (Netlify → Site
+  configuration → Environment variables), **then redeploy**.
+- Say where it should live for the team: the password manager, or the host's UI.
+- If it is weak — the brand name, a year, under ~12 characters — say so once,
+  name what it guards (every deck URL), and then set what they asked for. It is
+  their call.
+
+**If they do not want one**, set `index_access: public` and say plainly what it
+means: anyone who reaches `/` gets the URL of every deck listed there, so
+internal decks should not live in this repo. They also need
+`DECK_INDEX_PUBLIC=true` in the host — with neither variable set the index
+returns 503 rather than opening, which is deliberate.
+
+Validate: `npm run check` reports the index as decided. Mark nothing else; this
+is not a step in `steps:`, it is its own key.
+
 ## When the required steps are done
 
 Run `npm run check`. If it says ready, tell the founder they can write the

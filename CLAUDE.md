@@ -20,11 +20,12 @@ The path, in order:
 3. Resources        website, old decks, images                    [optional]
 4. People & proof   team, customers, investors, facts             [optional]
 5. Voice            banned words, disclaimers, tagline            [required]
-6. First deck       pick an audience, write slides
-7. Publish          exposure review, host, verify live
+6. Index access     who may see the deck list at /                [required]
+7. First deck       pick an audience, write slides
+8. Publish          exposure review, host, verify live
 ```
 
-Steps 6 and 7 have their own skills (`deck-authoring`, `deck-publish`) when present;
+Steps 7 and 8 have their own skills (`deck-authoring`, `deck-publish`) when present;
 until then, follow the editing guide below and `npm run check` tells you if the
 canon is complete enough to start.
 

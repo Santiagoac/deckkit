@@ -7,3 +7,10 @@ steps:
   resources: pending
   people-and-proof: pending
   voice: pending
+
+# Who may see the deck index at `/`. It lists every deck WITH its URL, so an
+# open index hands over the links the unguessable slugs exist to protect.
+#   pending  · not decided yet — `npm run check` will keep saying so
+#   password · protected; set DECK_INDEX_PASSWORD in your host, then redeploy
+#   public   · deliberately open; set DECK_INDEX_PUBLIC=true in your host
+index_access: pending

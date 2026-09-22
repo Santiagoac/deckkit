@@ -25,3 +25,25 @@ test('everything done: ready, nothing next', () => {
 test('unknown status names the step and the valid values', () => {
   assert.throws(() => summarize({ steps: { ...all('pending'), brand: 'nope' } }), /brand.*pending.*partial.*done/s);
 });
+
+// The index lists every deck WITH its URL, so leaving it open hands over the
+// unguessable links. The decision has to be made, not defaulted into.
+test('index access defaults to pending when the canon does not say', () => {
+  assert.equal(summarize({ steps: {} }).indexAccess, 'pending');
+});
+
+test('index access carries through when decided', () => {
+  assert.equal(summarize({ steps: {}, index_access: 'password' }).indexAccess, 'password');
+  assert.equal(summarize({ steps: {}, index_access: 'public' }).indexAccess, 'public');
+});
+
+test('an unknown index access value names itself and the valid ones', () => {
+  assert.throws(() => summarize({ steps: {}, index_access: 'maybe' }), /maybe.*pending.*password.*public/s);
+});
+
+test('an undecided index does not block writing slides — it blocks publishing', () => {
+  const done = Object.fromEntries(STEPS.map((s) => [s.id, 'done']));
+  assert.equal(summarize({ steps: done, index_access: 'pending' }).ready, true);
+  assert.equal(summarize({ steps: done, index_access: 'pending' }).readyToPublish, false);
+  assert.equal(summarize({ steps: done, index_access: 'password' }).readyToPublish, true);
+});

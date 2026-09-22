@@ -298,7 +298,13 @@ a { color: inherit; }
   position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 21;
   background: color-mix(in srgb, var(--ink) 25%, transparent);
 }
-.progress__bar { height: 100%; background: var(--brand-light); transition: width 180ms ease-out; }
+/* scaleX, not width: this animates on every slide change, which is exactly
+   when someone is watching. width runs layout each frame; transform does not. */
+.progress__bar {
+  height: 100%; width: 100%; background: var(--brand-light);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 180ms ease-out;
+}
 
 .notes {
   position: fixed; inset: auto 0 0 0; z-index: 19;

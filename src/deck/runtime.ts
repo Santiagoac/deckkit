@@ -79,7 +79,7 @@ class Deck {
 
     const total = this.slides.length;
     if (this.counter) this.counter.textContent = `${this.index + 1} / ${total}`;
-    if (this.bar) this.bar.style.width = `${((this.index + 1) / total) * 100}%`;
+    if (this.bar) this.bar.style.transform = `scaleX(${(this.index + 1) / total})`;
     if (this.notes && this.showNotes) {
       this.notes.textContent = this.slides[this.index]?.dataset.notes ?? '';
     }

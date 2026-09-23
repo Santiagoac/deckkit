@@ -4,12 +4,40 @@ A sales deck as a web project. Presents like PowerPoint, shares like a link.
 
 ## Start here
 
-This repo sets itself up for one company before any slide is written. **Before
-anything else**, read `canon/onboarding.yaml` and run `npm run check`. Tell the
-person which steps are done and which comes next, in their language, in a short
-paragraph. If any step is not `done`, your first action is to invoke the
-`deck-onboarding` skill — it resumes where things were left. Never redo a `done`
-step unless asked.
+This repo sets itself up for one company before any slide is written.
+
+**Make it run first, without asking.**
+
+1. No `node_modules/`? Run `npm install`. Do not ask permission and do not
+   explain npm — just do it and say "preparando todo, un momento".
+2. `npm install` fails because Node is missing or too old (needs 20+)? Say it in
+   one line and give one command, then wait:
+   *macOS* `brew install node` · *Windows and everything else*: the installer at
+   [nodejs.org](https://nodejs.org).
+3. Then read `canon/onboarding.yaml` and run `npm run check`. Tell the person
+   which steps are done and which comes next, in their language, in a short
+   paragraph.
+
+If any step is not `done`, your first action is to follow the `deck-onboarding`
+skill — it resumes where things were left. Never redo a `done` step unless asked.
+
+### Who you are talking to
+
+Most people opening this have never written a line of code. Assume that until
+they show you otherwise.
+
+- **Don't show commands, paths or file names** unless they ask. You run them.
+  They hear what happened, not how.
+- Say **"tu deck", "tu marca", "tu link"** — not `canon/brand.yaml`,
+  `npm run build`, `src/content/slides/`.
+- When something fails, say what it means for them and what you are doing about
+  it. A stack trace is never an answer.
+- Someone who types commands at you, or asks about the canon, has told you they
+  are technical. Switch registers and stop translating.
+
+The exception is anything they must do outside this folder — creating a Netlify
+account, setting a password in a web UI. There, be exact: they are on their own
+screen and cannot see yours.
 
 The path, in order:
 
@@ -230,6 +258,46 @@ Netlify UI, or any push.
 
 The top bar's **← Decks** still points at `/`, so a client who clicks it meets
 the password prompt. That is the intended answer, not a dead end.
+
+## Publishing
+
+Until `deck-publish` exists, follow this. It works from the local folder — the
+person does not need a GitHub account, and nothing of theirs has to leave their
+machine except the built site.
+
+**Do not start this on your own.** Publishing puts their deck on the open
+internet. Wait until they ask.
+
+1. **Explain Netlify in two lines, once.** "Es donde va a vivir tu deck en
+   internet, para que puedas mandar un link. Es gratis para esto." Nothing about
+   CDNs, builds or DNS.
+2. **Account.** Ask them to create one at [netlify.com](https://netlify.com) —
+   signing in with Google is the shortest path. Wait for them to say they did.
+3. **Log the CLI in.** `npx netlify-cli login` opens their browser; tell them a
+   tab will open and they should approve it.
+4. **Deploy.** `npx netlify-cli deploy --prod`. First run asks whether to create
+   a new site — create one, and let it pick a name unless they have a
+   preference. `netlify.toml` ships the edge function and headers, so the
+   password gate travels with the deploy.
+5. **The index password.** Ask what they want (see step 6 of the onboarding, and
+   respect `index_access` if it is already decided):
+   - protected: `npx netlify-cli env:set DECK_INDEX_PASSWORD "<theirs>"`
+   - deliberately open: `npx netlify-cli env:set DECK_INDEX_PUBLIC true`
+
+   Then **deploy again**. Netlify snapshots the environment into each deploy, so
+   a value set after the last one does nothing until something rebuilds. Skipping
+   this is how someone ends up believing a password is live when it is not.
+6. **Hand them the link** — the deck's own URL, with its slug, not the root.
+   Check it yourself first. Tell them the root asks for the password and the deck
+   link does not, because that is the part that looks broken if unexplained.
+
+**Never** write their password into a file in this repo. Not `.env`, not the
+canon, not a note. `.env*` is gitignored so it would not reach their team, and
+production reads the host's environment, not this folder.
+
+GitHub is the advanced route, and only worth mentioning if they ask for it or
+already have the repo there: connecting it makes the site rebuild on every push
+instead of on every `deploy` command.
 
 ## Presenting
 

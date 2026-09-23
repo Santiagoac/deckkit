@@ -2,21 +2,24 @@
 import { getCollection } from 'astro:content';
 import '../styles/tokens.generated.css';
 import '../styles/base.css';
-import { loadCanon, googleFontsHref } from '../../scripts/lib/canon.mjs';
+import { loadCanon, googleFontsHref, loadLanguage } from '../../scripts/lib/canon.mjs';
+import { uiStrings, normalizeLanguage } from '../../scripts/lib/ui.mjs';
 
 const canon = loadCanon(process.cwd());
 const fontsHref = googleFontsHref(canon);
+const lang = normalizeLanguage(loadLanguage(process.cwd()));
+const t = uiStrings(lang);
 
 const decks = (await getCollection('decks')).sort((a, b) =>
   a.data.status === b.data.status ? 0 : a.data.status === 'published' ? -1 : 1,
 );
 ---
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Decks </title>
+    <title>{t.decks}</title>
     <meta name="robots" content="noindex" />
     <link rel="icon" href={canon.logo.dark} />
     {fontsHref && <link rel="stylesheet" href={fontsHref} />}
@@ -24,20 +27,20 @@ const decks = (await getCollection('decks')).sort((a, b) =>
   <body>
     <main class="selector">
       <img class="selector__logo" src={canon.logo.dark} alt={canon.name} height="28" />
-      <h1 class="selector__title">Decks</h1>
-      <p class="selector__nota">Pick the deck for the room you're walking into.</p>
+      <h1 class="selector__title">{t.decks}</h1>
+      <p class="selector__nota">{t.indexNote}</p>
       <ul class="selector__list">
         {decks.map((r) => (
           <li>
             {r.data.status === 'published' ? (
               <a class="tarjeta" href={`/${r.data.slug}`}>
                 <span class="tarjeta__nombre">{r.data.name}</span>
-                <span class="tarjeta__meta">{r.data.slides.length} slides</span>
+                <span class="tarjeta__meta">{r.data.slides.length} {t.slideCount}</span>
               </a>
             ) : (
               <span class="tarjeta tarjeta--borrador">
                 <span class="tarjeta__nombre">{r.data.name}</span>
-                <span class="tarjeta__meta">Draft</span>
+                <span class="tarjeta__meta">{t.draft}</span>
               </span>
             )}
           </li>

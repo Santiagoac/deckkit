@@ -13,6 +13,27 @@ doesn't know something, leave it pending and say so.
 
 ## Before anything
 
+0. **Make it run.** No `node_modules/`? `npm install`, without asking. Node
+   missing or under 20? One line, one command (`brew install node` on macOS,
+   nodejs.org otherwise), then wait.
+
+   **Then check where this is going to be stored.** Everything below writes the
+   founder's positioning, their team's photos and their customers' logos into
+   `company/` and `canon/`, and none of it is gitignored:
+
+   ```bash
+   git remote -v                                   # is there a remote at all?
+   gh repo view --json visibility -q .visibility   # if it is on GitHub
+   ```
+
+   - No remote → perfect, it is only on their machine. Say so and move on.
+   - Private → fine.
+   - **Public → stop and say it before writing anything**: "esto va a guardar
+     información de tu empresa y fotos de tu equipo en un repo que cualquiera
+     puede ver." Offer to make it private (`gh repo edit --visibility private`)
+     or to remove the remote and keep it local. Do not write `company/` or
+     `canon/facts.yaml` until they answer.
+
 1. Read `canon/onboarding.yaml` and run `npm run check`. In one short paragraph,
    in the founder's language, say which steps are done and which comes next.
 2. Resume at the first step that is not `done`. Never redo a `done` step unless asked.
@@ -64,6 +85,12 @@ Validate: `npm run canon` passes (it fails if any accent can't be read on a
 light background — explain the pair and darken the accent), then `npm run build`.
 Mark `brand: done`.
 
+**Then deal with the demo deck.** `src/content/decks/demo.yaml` ships
+`status: published`, so once their brand is in place the demo is sitting in
+their index wearing it — and it would go live with everything else. Ask:
+delete it, or set `status: draft` to keep it around as an example of the
+frontmatter? Either is fine; leaving it published is not.
+
 ## 3. Resources → `reference/`, `public/assets/`, corrections to steps 1–2
 
 **Website.** If you can fetch the URL, read the homepage and one product page.
@@ -71,7 +98,19 @@ Extract hex colors, font names, positioning copy. Propose additions or
 corrections to `canon/brand.yaml` and `company/positioning.md`; the founder
 confirms each one. Never overwrite step 2 silently.
 
-**Old decks.** For each PDF: `npm run import-deck -- path/to/deck.pdf`. It
+**Old decks.** This is the step founders want most — "sube tu deck viejo" — and
+the one that fails hardest, because it needs poppler. **Check before asking for
+the PDF**, not after:
+
+```bash
+command -v pdftoppm >/dev/null && echo ok || echo missing
+```
+
+Missing → offer it as a choice, in their words: install it (`brew install
+poppler` on macOS) which takes a minute, or skip the old deck and write fresh.
+Never let them go find a file and then hit an error.
+
+For each PDF: `npm run import-deck -- path/to/deck.pdf`. It
 writes page renders and text to `reference/<deck>/` and one draft per page to
 `reference/<deck>/slides/`. Walk the drafts with the founder: which to keep as
 starting points (copy into `src/content/slides/`, then `npm run build`), which
@@ -109,10 +148,17 @@ Validate: `npm run build` (the schema enforces consent and permission) and
 
 ## 5. Voice → `canon/voice.yaml`
 
-Ask: 3–5 tone adjectives; words you never want in a deck — and for each, what to
-say instead and why; phrases legal requires and when; the tagline if there is
-one; formality; a glossary of internal terms → customer terms. See
-`references/voice-schema.md` for the exact shape.
+Ask: **what language the decks are written in** (`language: es` / `en`); 3–5 tone
+adjectives; words you never want in a deck — and for each, what to say instead
+and why; phrases legal requires and when; the tagline if there is one;
+formality (tú or usted, if the language has the distinction); a glossary of
+internal terms → customer terms. See `references/voice-schema.md` for the exact
+shape.
+
+`language` is not just a label. It sets `<html lang>` on every page — which is
+what screen readers and the browser's auto-translate read — and it switches the
+handful of words deckkit supplies itself: the index, the password screen, the
+draft tag. Get it wrong and a Spanish deck greets a client in English.
 
 Banned terms are checked on every slide by `npm run evals`. `<Quote>` (the
 customer's own words) is exempt unless the term is `strict: true`. Validate:
@@ -156,9 +202,21 @@ is not a step in `steps:`, it is its own key.
 
 ## When the required steps are done
 
-Run `npm run check`. If it says ready, tell the founder they can write the
-first deck — with the `deck-authoring` skill if present, otherwise by hand
-following CLAUDE.md — and that publishing comes after (`deck-publish`). Commit.
+Run `npm run check`. If it says ready, **show them the thing they have been
+answering questions for.** Do not end on a status report.
+
+1. Start `npm run dev` in the background.
+2. Run `npm run deck:urls` and give them **the exact URL of a deck**, not the
+   root: `http://localhost:4321/demo-57100540ae57`. The root is the index, and
+   in production it is behind a password — sending them there is the most common
+   way to make a working setup look broken.
+3. Tell them the three keys that matter: `→` to advance, `P` for presentation
+   mode, `O` to see every slide at once.
+4. Then say what comes next: writing their first real deck (the
+   `deck-authoring` skill if present, otherwise by hand following CLAUDE.md),
+   and publishing after that (the Publishing section of CLAUDE.md).
+
+Commit.
 
 ## Rules
 

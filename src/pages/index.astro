@@ -33,10 +33,33 @@ const decks = (await getCollection('decks')).sort((a, b) =>
         {decks.map((r) => (
           <li>
             {r.data.status === 'published' ? (
-              <a class="tarjeta" href={`/${r.data.slug}`}>
-                <span class="tarjeta__nombre">{r.data.name}</span>
-                <span class="tarjeta__meta">{r.data.slides.length} {t.slideCount}</span>
-              </a>
+              <div class="fila">
+                <a class="tarjeta" href={`/${r.data.slug}`}>
+                  <span class="tarjeta__nombre">{r.data.name}</span>
+                  <span class="tarjeta__meta">{r.data.slides.length} {t.slideCount}</span>
+                </a>
+                {/* <details> so the panel opens and closes with no JS of its own.
+                    The script below only builds the URL and copies it. */}
+                <details class="share" data-slug={r.data.slug}>
+                  <summary class="share__toggle">{t.share}</summary>
+                  <div class="share__panel">
+                    <div class="share__modes" role="radiogroup" aria-label={t.share}>
+                      <label><input type="radio" name={`m-${r.data.slug}`} value="normal" checked /> {t.shareNormal}</label>
+                      <label><input type="radio" name={`m-${r.data.slug}`} value="story" /> {t.shareStory}</label>
+                    </div>
+                    <div class="share__seconds" hidden>
+                      <span class="share__label">{t.shareSeconds}</span>
+                      <div class="share__opciones" role="radiogroup" aria-label={t.shareSeconds}>
+                        {[3, 5, 8].map((s) => (
+                          <label><input type="radio" name={`s-${r.data.slug}`} value={s} checked={s === 5} /> {s}s</label>
+                        ))}
+                      </div>
+                    </div>
+                    <input class="share__url" readonly aria-label="URL" />
+                    <button type="button" class="share__copy" data-copied={t.shareCopied}>{t.shareCopy}</button>
+                  </div>
+                </details>
+              </div>
             ) : (
               <span class="tarjeta tarjeta--borrador">
                 <span class="tarjeta__nombre">{r.data.name}</span>
@@ -73,6 +96,105 @@ const decks = (await getCollection('decks')).sort((a, b) =>
       .tarjeta--borrador { opacity: 0.55; }
       .tarjeta__nombre { font-weight: 500; }
       .tarjeta__meta { font-family: var(--font-mono); font-size: 0.875rem; color: color-mix(in srgb, var(--ink) 55%, var(--paper)); }
+      .fila { display: flex; align-items: stretch; gap: var(--sp-2); }
+      .fila .tarjeta { flex: 1; }
+      .share { position: relative; }
+      .share__toggle {
+        list-style: none; cursor: pointer; user-select: none;
+        display: grid; place-items: center; height: 100%;
+        padding: 0 var(--sp-3); white-space: nowrap;
+        border: 1px solid color-mix(in srgb, var(--ink) 15%, var(--paper));
+        border-radius: 12px; background: #fff;
+        font-size: 0.875rem; color: color-mix(in srgb, var(--ink) 70%, var(--paper));
+      }
+      .share__toggle::-webkit-details-marker { display: none; }
+      .share__toggle:hover { border-color: var(--brand); }
+      .share[open] .share__toggle { border-color: var(--brand); color: var(--ink); }
+      .share__panel {
+        position: absolute; right: 0; top: calc(100% + var(--sp-1)); z-index: 5;
+        width: min(320px, 78vw);
+        display: flex; flex-direction: column; gap: var(--sp-2);
+        padding: var(--sp-3); border-radius: 12px; background: #fff;
+        border: 1px solid color-mix(in srgb, var(--ink) 15%, var(--paper));
+        box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 12%, transparent);
+      }
+      .share__modes, .share__opciones { display: flex; gap: var(--sp-3); }
+      .share__panel label {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 0.875rem; cursor: pointer;
+      }
+      .share__label {
+        font-family: var(--font-mono); font-size: 0.75rem;
+        text-transform: uppercase; letter-spacing: 0.06em;
+        color: color-mix(in srgb, var(--ink) 55%, var(--paper));
+      }
+      .share__seconds { display: flex; flex-direction: column; gap: 6px; }
+      /* An author `display` beats the UA rule behind [hidden], so without this
+         the seconds stay on screen while Normal is selected. */
+      .share__seconds[hidden] { display: none; }
+      .share__url {
+        width: 100%; box-sizing: border-box;
+        font-family: var(--font-mono); font-size: 0.75rem;
+        padding: var(--sp-2); border-radius: 8px; color: var(--ink);
+        border: 1px solid color-mix(in srgb, var(--ink) 15%, var(--paper));
+        background: color-mix(in srgb, var(--ink) 4%, var(--paper));
+      }
+      .share__copy {
+        padding: var(--sp-2); border: 0; border-radius: 8px; cursor: pointer;
+        background: var(--brand-light); color: var(--ink);
+        font-family: var(--font-body); font-size: 0.875rem; font-weight: 600;
+      }
+      @media (max-width: 560px) {
+        /* A popover pinned to a button is fine on a laptop and cramped on a
+           phone: it opens under the row instead. */
+        .fila { flex-wrap: wrap; }
+        .share { width: 100%; }
+        .share__toggle { padding: var(--sp-2); }
+        .share__panel { position: static; width: auto; }
+      }
     </style>
+
+    <script>
+      import { buildShareUrl } from '../../scripts/lib/story.mjs';
+
+      const COPIED_MS = 1600;
+
+      document.querySelectorAll<HTMLElement>('.share').forEach((panel) => {
+        const slug = panel.dataset.slug!;
+        const seconds = panel.querySelector<HTMLElement>('.share__seconds')!;
+        const field = panel.querySelector<HTMLInputElement>('.share__url')!;
+        const copy = panel.querySelector<HTMLButtonElement>('.share__copy')!;
+        const original = copy.textContent!;
+
+        const read = () => ({
+          mode: panel.querySelector<HTMLInputElement>('input[value="story"]')!.checked ? 'story' : 'normal',
+          seconds: Number(panel.querySelector<HTMLInputElement>('input[name^="s-"]:checked')?.value ?? 5),
+        });
+
+        const refresh = () => {
+          const { mode, seconds: s } = read();
+          seconds.hidden = mode !== 'story';
+          // Absolute, because the point of this field is to be pasted somewhere
+          // else — a relative path would be useless in an email.
+          field.value = buildShareUrl(new URL(`/${slug}`, location.origin).toString(), { mode, seconds: s });
+        };
+
+        panel.addEventListener('change', refresh);
+        refresh();
+
+        copy.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(field.value);
+          } catch {
+            // No clipboard permission, or an insecure origin. Select it so the
+            // person can copy by hand instead of getting nothing.
+            field.focus(); field.select();
+            return;
+          }
+          copy.textContent = copy.dataset.copied!;
+          setTimeout(() => { copy.textContent = original; }, COPIED_MS);
+        });
+      });
+    </script>
   </body>
 </html>

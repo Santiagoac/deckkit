@@ -17,10 +17,11 @@ test('Spanish is actually translated, not English copied across', () => {
   const en = uiStrings('en');
   const es = uiStrings('es');
   const shared = Object.keys(en).filter((k) => en[k] === es[k]).sort();
-  // "deck" and "slide" are the words Spanish-speaking founders actually use —
-  // translating them to "baraja" and "diapositiva" would read as machine output.
-  // Named here so a genuinely forgotten translation still fails this test.
-  assert.deepEqual(shared, ['backToDecks', 'decks', 'slideCount']);
+  // "deck", "slide", "normal" and "story" are the words Spanish-speaking
+  // founders actually use — "baraja", "diapositiva" and "historia" would read
+  // as machine output. Named here so a genuinely forgotten translation still
+  // fails this test.
+  assert.deepEqual(shared, ['backToDecks', 'decks', 'shareNormal', 'shareStory', 'slideCount']);
 });
 
 test('an unknown language falls back to English rather than throwing', () => {

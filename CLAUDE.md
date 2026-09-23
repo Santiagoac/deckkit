@@ -313,6 +313,25 @@ Move the cursor to the top edge and a bar appears with **← Decks**. On a phone
 
 `?present` opens straight into presentation mode. `?notes` shows your notes. `#7` opens on slide 7 — handy for a link that points at something specific.
 
+## Story mode
+
+`?story=5` plays the deck on its own, five seconds a slide, the way a story
+does: one slide at a time, a segmented bar across the top, tap the right third
+to skip ahead and the left third to go back, hold to pause.
+
+It **stops on the last slide** with the bar full, rather than looping — a
+closing slide usually carries the link, and it has to stay on screen long
+enough to be used.
+
+The duration is clamped to 2–30 seconds. Below that it flickers unreadably,
+above it a viewer thinks the page froze; both ends are someone's typo rather
+than someone's intent, so the link still plays instead of failing.
+
+Build these links from the deck index: each row has a **Share** button that
+writes the URL for you. `Esc` leaves story mode, and the controls bar carries a
+pause button — content that advances on its own has to be stoppable, and
+holding a finger down is an affordance nobody can see.
+
 ## Running
 
 ```bash

@@ -41,6 +41,9 @@ const { title } = Astro.props;
       <button type="button" data-action="prev" aria-label="Slide prev">←</button>
       <span class="controls__counter" aria-live="polite">1 / 1</span>
       <button type="button" data-action="next" aria-label="Slide next">→</button>
+      {/* Only shown in story mode. Content that advances on its own has to be
+          stoppable, and holding a finger down is an invisible affordance. */}
+      <button type="button" class="controls__pause" data-action="pause" aria-label={ui.pause}>❚❚</button>
       <button type="button" data-action="present" aria-label="Mode presentación (P)">⛶</button>
     </nav>
 

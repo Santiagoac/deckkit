@@ -1,6 +1,7 @@
 /** Deck runtime: navigation, modes and URL state. No dependencies. */
+import { parseStory } from '../../scripts/lib/story.mjs';
 
-type Mode = 'normal' | 'present' | 'overview';
+type Mode = 'normal' | 'present' | 'overview' | 'story';
 
 class Deck {
   private deck: HTMLElement;
@@ -11,6 +12,14 @@ class Deck {
   private bar: HTMLElement | null;
   private notes: HTMLElement | null;
   private showNotes: boolean;
+
+  /** Story mode. `timer` is the pending advance; `segments` are the bars at the
+   *  top, one per slide. `paused` survives across slides so holding a finger
+   *  down does not get undone by an advance that was already in flight. */
+  private storySeconds = 0;
+  private storyTimer = 0;
+  private storyPaused = false;
+  private segments: HTMLElement[] = [];
 
   constructor(deck: HTMLElement) {
     this.deck = deck;
@@ -24,20 +33,126 @@ class Deck {
     this.index = this.readHash();
     if (params.has('present')) this.setMode('present');
 
+    const story = parseStory(location.search);
+    if (story.enabled) {
+      this.storySeconds = story.seconds;
+      this.buildSegments();
+      this.setMode('story');
+    }
+
     this.bindKeyboard();
     this.bindTouch();
     this.bindButtons();
     this.bindScroll();
     this.bindOverview();
     this.bindHash();
+    this.bindStory();
     this.autoHideControls();
     this.topBar();
     this.fitAll();
     this.refitOnChange();
 
-    if (this.mode === 'present') this.ir(this.index);
+    if (this.mode === 'present' || this.mode === 'story') this.ir(this.index);
     else if (this.index > 0) this.slides[this.index]?.scrollIntoView();
     this.render();
+    if (this.mode === 'story') this.startSlideTimer();
+  }
+
+  /** One bar per slide, above the deck. This is the affordance that makes the
+   *  thing read as a story rather than as a deck that moves by itself. */
+  private buildSegments() {
+    const host = document.querySelector('.progress');
+    if (!host) return;
+    host.setAttribute('data-story', '');
+    this.segments = this.slides.map(() => {
+      const seg = document.createElement('div');
+      seg.className = 'progress__segment';
+      const fill = document.createElement('div');
+      fill.className = 'progress__fill';
+      seg.appendChild(fill);
+      host.appendChild(seg);
+      return fill;
+    });
+  }
+
+  /** Paints the bars: everything before the current slide full, everything
+   *  after empty, and the current one animating over its own duration. */
+  private paintSegments() {
+    this.segments.forEach((fill, i) => {
+      fill.style.transition = 'none';
+      fill.style.transform = `scaleX(${i < this.index ? 1 : 0})`;
+    });
+    const current = this.segments[this.index];
+    if (!current) return;
+    // Two frames: the browser has to see scaleX(0) painted before it will
+    // animate away from it. One frame is not reliably enough.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (this.mode !== 'story') return;
+      const last = this.index === this.slides.length - 1;
+      current.style.transition = this.storyPaused || last
+        ? 'none'
+        : `transform ${this.storySeconds}s linear`;
+      current.style.transform = 'scaleX(1)';
+    }));
+  }
+
+  private clearSlideTimer() {
+    clearTimeout(this.storyTimer);
+    this.storyTimer = 0;
+  }
+
+  private startSlideTimer() {
+    this.clearSlideTimer();
+    if (this.mode !== 'story' || this.storyPaused) return;
+    // The last slide is the end. It holds, with its bar full, so a closing
+    // slide with a link stays on screen long enough to be used.
+    if (this.index >= this.slides.length - 1) { this.paintSegments(); return; }
+    this.paintSegments();
+    this.storyTimer = window.setTimeout(() => this.next(), this.storySeconds * 1000);
+  }
+
+  private setPaused(paused: boolean) {
+    if (this.mode !== 'story' || this.storyPaused === paused) return;
+    this.storyPaused = paused;
+    if (paused) this.deck.dataset.storyPaused = '';
+    else delete this.deck.dataset.storyPaused;
+    if (paused) {
+      this.clearSlideTimer();
+      // Freeze the bar where it is instead of snapping it back.
+      const fill = this.segments[this.index];
+      if (fill) {
+        const now = getComputedStyle(fill).transform;
+        fill.style.transition = 'none';
+        fill.style.transform = now === 'none' ? 'scaleX(0)' : now;
+      }
+    } else {
+      this.startSlideTimer();
+    }
+  }
+
+  private bindStory() {
+    // Hold to pause is the reflex everyone brings from Instagram, but it is
+    // invisible — the visible pause button lives in the controls bar, because
+    // content that advances on its own has to be stoppable (WCAG 2.2.2).
+    const hold = (paused: boolean) => () => this.setPaused(paused);
+    this.deck.addEventListener('pointerdown', hold(true));
+    document.addEventListener('pointerup', hold(false));
+    document.addEventListener('pointercancel', hold(false));
+
+    // Tap zones: right third forward, left third back.
+    this.deck.addEventListener('click', (e) => {
+      if (this.mode !== 'story') return;
+      // A closing slide's whole job is its link. A tap on it must open it,
+      // not advance past it.
+      if ((e.target as HTMLElement)?.closest('a, button, input, [role="button"]')) return;
+      const x = (e as PointerEvent).clientX / window.innerWidth;
+      if (x > 0.66) this.next();
+      else if (x < 0.33) this.prev();
+    });
+
+    document.querySelector('[data-action="pause"]')?.addEventListener('click', () => {
+      this.setPaused(!this.storyPaused);
+    });
   }
 
   private readHash(): number {
@@ -50,21 +165,32 @@ class Deck {
   }
 
   ir(i: number) {
+    const before = this.index;
     this.index = this.clamp(i);
     if (this.mode === 'normal') {
       this.slides[this.index]?.scrollIntoView({ behavior: 'smooth' });
     }
     this.render();
+    // Moving by hand restarts this slide's time. Otherwise tapping forward
+    // lands you on a slide that vanishes in whatever was left of the last one.
+    if (this.mode === 'story' && this.index !== before) this.startSlideTimer();
   }
 
   next() { this.ir(this.index + 1); }
   prev() { this.ir(this.index - 1); }
 
   setMode(m: Mode) {
+    // Leaving story stops the clock. A timer still running behind the overview
+    // would advance the deck under someone who is reading the grid.
+    if (this.mode === 'story' && m !== 'story') {
+      this.clearSlideTimer();
+      this.storyPaused = false;
+    }
     this.mode = m;
     this.deck.dataset.mode = m;
     if (m === 'normal') this.slides[this.index]?.scrollIntoView();
     this.render();
+    if (m === 'story') this.startSlideTimer();
   }
 
   toggleMode(m: Mode) {

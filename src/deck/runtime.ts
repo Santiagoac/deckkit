@@ -211,7 +211,7 @@ class Deck {
     }
 
     const hash = `#${this.index + 1}`;
-    if (location.hash !== hash) history.replaceState(null, '', hash + location.search);
+    if (location.hash !== hash) history.replaceState(null, '', hash);
   }
 
   private bindKeyboard() {

@@ -1,0 +1,20 @@
+# Your content, never the template's.
+#
+# Pulling new deckkit features into a copy you have made your own used to
+# collide on exactly the files you care most about — your canon, your slides,
+# your positioning. These paths are marked so a merge always keeps YOUR
+# version. The engine merges normally; your work is never touched.
+#
+# The driver is configured by `npm run update`, which sets:
+#   git config merge.keep-mine.driver true
+# ("true" is a command that succeeds without writing anything, so the local
+# side survives.) Without that config git falls back to a normal merge, which
+# is why the script sets it before every pull rather than trusting it is there.
+
+canon/**            merge=keep-mine
+company/**          merge=keep-mine
+src/content/**      merge=keep-mine
+public/assets/**    merge=keep-mine
+
+# Generated, and gitignored anyway — belt and braces.
+src/styles/tokens.generated.css   merge=keep-mine

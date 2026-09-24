@@ -70,6 +70,22 @@ offers to install it).
 | Python 3 | optional — full color scales during the brand step |
 | poppler | optional — importing old decks from PDF |
 
+## Bringing in new features
+
+deckkit keeps changing. To pull the latest into a copy you have already made
+your own, tell your agent **"busca actualizaciones"**, or run it yourself:
+
+```bash
+npm run update -- --check   # what is new, changes nothing
+npm run update              # bring it in
+```
+
+`canon/`, `company/`, `src/content/` and `public/assets/` are marked
+`merge=keep-mine` in `.gitattributes`, so **your brand, your slides and your
+data are never touched** — only the engine updates, and there is nothing to
+resolve by hand. It links `upstream` itself the first time, so a copy made with
+**Use this template** needs no setup.
+
 ## After the onboarding
 
 `deck-authoring` and `deck-publish` are not written yet, so until they are, ask

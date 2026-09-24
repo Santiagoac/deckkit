@@ -112,7 +112,23 @@ Ojo con el límite: quien tenga un link lo tiene para siempre y puede
 reenviarlo. Esto evita que un cliente husmee tus otros decks. **No** vuelve
 secreto un deck. Lo que de verdad no puede salir de tu empresa, no lo publiques.
 
-## 8. Glosario
+## 8. Cómo traer lo nuevo
+
+deckkit sigue creciendo. Para traer lo último a tu proyecto, escríbele a tu
+asistente:
+
+> **busca actualizaciones**
+
+Te va a decir qué hay de nuevo en español y te pregunta si lo quieres. Si dices
+que sí, lo trae y comprueba que todo siga funcionando.
+
+**Tu marca, tus decks y tus datos no se tocan nunca.** Solo se actualiza el
+motor. No vas a perder nada de lo que escribiste, ni tienes que resolver nada a
+mano.
+
+Si algo saliera mal, el asistente te da un comando para dejar todo como estaba.
+
+## 9. Glosario
 
 | | |
 |---|---|
@@ -124,7 +140,7 @@ secreto un deck. Lo que de verdad no puede salir de tu empresa, no lo publiques.
 | **slug** | el pedacito final del link de un deck, con su código aleatorio |
 | **canon** | donde viven tu marca y tus datos. La única fuente de verdad |
 
-## 9. Si algo no jala
+## 10. Si algo no jala
 
 [Abre un issue](https://github.com/Santiagoac/deckkit/issues/new?template=feedback.md)
 y di en qué paso te atoraste. Sirve más de lo que crees: casi todo lo que está

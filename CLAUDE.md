@@ -313,6 +313,32 @@ Move the cursor to the top edge and a bar appears with **← Decks**. On a phone
 
 `?present` opens straight into presentation mode. `?notes` shows your notes. `#7` opens on slide 7 — handy for a link that points at something specific.
 
+## Bringing in new deckkit features
+
+When someone says **"busca actualizaciones"**, *"actualiza deckkit"* or asks
+whether there is anything new: run `npm run update -- --check`, read what it
+found back to them in their own language, and if they want it, run
+`npm run update`.
+
+```bash
+npm run update -- --check   # what is new, changes nothing
+npm run update              # bring it in
+```
+
+**Their work is never touched.** `canon/`, `company/`, `src/content/` and
+`public/assets/` are marked `merge=keep-mine` in `.gitattributes`, so a merge
+always keeps their version. Only the engine comes from upstream. That is the
+whole reason this is safe to offer to someone who has never used git: there is
+nothing for them to resolve.
+
+The command refuses to run with uncommitted work, tags the current commit
+first, and runs the tests and the build afterwards. If either fails it undoes
+nothing on its own but prints the one command that does — pass that on rather
+than trying to repair it silently.
+
+It links `upstream` itself the first time, so a copy made with **Use this
+template** works without any setup.
+
 ## Story mode
 
 `?story=5` plays the deck on its own, five seconds a slide, the way a story

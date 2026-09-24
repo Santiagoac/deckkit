@@ -19,7 +19,8 @@
     "deck:slug": "node scripts/deck-slug.mjs",
     "no-secrets": "node scripts/no-secrets.mjs",
     "deck:urls": "node scripts/deck-urls.mjs",
-    "postbuild": "npm run deck:urls"
+    "postbuild": "npm run deck:urls",
+    "update": "node scripts/update.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.0",

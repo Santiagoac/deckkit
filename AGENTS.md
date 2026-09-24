@@ -12,7 +12,11 @@ any slide is written.
 3. **For the brand step**, follow
    `.claude/skills/brand-book-generator/SKILL.md`.
 4. **Run `npm install` yourself** if `node_modules/` is missing. Do not ask.
-5. **Run `npm run check`** to see where things stand, and say it back to the
+5. **"busca actualizaciones"** or anything like it: run
+   `npm run update -- --check`, report what it found in their language, and on
+   their say-so run `npm run update`. Their own files are protected by
+   `.gitattributes`; do not try to merge by hand.
+6. **Run `npm run check`** to see where things stand, and say it back to the
    person in their own language.
 
 `.claude/skills/` is a Claude Code convention. Under Codex the files are plain

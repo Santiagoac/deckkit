@@ -79,6 +79,9 @@ f.addEventListener('load', () => setTimeout(() => {
         && (el.textContent || '').trim().length > 0;
     };
     for (const parent of s.querySelectorAll('*')) {
+      // Inside a drawing, glyphs are marks, not layout: an SVG made of <text>
+      // (an ASCII figure, a chart label) overlaps itself on purpose.
+      if (parent.closest('svg')) continue;
       const kids = [...parent.children].filter(visible);
       for (let a = 0; a < kids.length; a++) {
         for (let b = a + 1; b < kids.length; b++) {

@@ -53,7 +53,9 @@ const decks = (await getCollection('decks')).sort((a, b) =>
                     <div class="share__seconds" hidden>
                       <span class="share__label">{t.shareSeconds}</span>
                       <div class="share__opciones" role="radiogroup" aria-label={t.shareSeconds}>
-                        {[3, 5, 8].map((s) => (
+                        {/* 15 is for a deck someone reads rather than skims —
+                            a dense slide needs longer than a cover. */}
+                        {[3, 5, 8, 15].map((s) => (
                           <label><input type="radio" name={`s-${r.data.slug}`} value={s} checked={s === 5} /> {s}s</label>
                         ))}
                       </div>
@@ -124,7 +126,7 @@ const decks = (await getCollection('decks')).sort((a, b) =>
         border: 1px solid color-mix(in srgb, var(--ink) 15%, var(--paper));
         box-shadow: 0 8px 24px color-mix(in srgb, var(--ink) 12%, transparent);
       }
-      .share__modes, .share__opciones { display: flex; gap: var(--sp-3); }
+      .share__modes, .share__opciones { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
       .share__panel label {
         display: flex; align-items: center; gap: 6px;
         font-size: 0.875rem; cursor: pointer;

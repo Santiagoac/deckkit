@@ -1,4 +1,5 @@
-/** Your rules go here. This one is real but skipped — delete it or claim it.
+/** VERSION DEL TEMPLATE — no debe llegar a un repo que ya la personalizo.
+ *  Your rules go here. This one is real but skipped — delete it or claim it.
  *
  *  The example is the rule deckkit used to impose on everybody and no longer
  *  does: that a closing slide's image is a signature rather than the subject.

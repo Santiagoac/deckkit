@@ -19,9 +19,6 @@ const { background, accent, title, eyebrow, footer, notes, visual } = Astro.prop
 </Slide>
 <style>
   .closing { display: flex; flex-direction: column; gap: var(--sp-2); }
-  /* The closing image is a signature, not the subject: at full height it
-     outweighs the line the slide exists to say. */
-  .duo .duo__visual :global(img) { max-height: 62%; }
   .closing__eyebrow {
     margin: 0; font-size: var(--t-h2); font-weight: 400; color: var(--accent-visible);
   }

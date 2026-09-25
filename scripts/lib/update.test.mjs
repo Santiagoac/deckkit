@@ -47,10 +47,12 @@ test('blank lines from git output are ignored', () => {
 // The whole update story rests on this list: these paths are the founder's and
 // a merge must never take upstream's version of them.
 test('MINE covers every place the onboarding writes, and nothing of the engine', () => {
-  for (const p of ['canon/', 'company/', 'src/content/', 'public/assets/']) {
+  for (const p of ['canon/', 'company/', 'src/content/', 'public/assets/', 'evals/mine/']) {
     assert.ok(MINE.includes(p), `${p} is the founder's`);
   }
   for (const p of ['src/components/', 'src/layouts/', 'scripts/', '.claude/']) {
     assert.ok(!MINE.includes(p), `${p} is the engine's`);
   }
+  // evals/ minus evals/mine/ is the template's: its rules must keep updating.
+  assert.ok(!MINE.includes('evals/'), "the template's own evals still update");
 });

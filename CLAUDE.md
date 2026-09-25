@@ -151,6 +151,23 @@ ver más chica que las demás"*, not the number.
 It also checks images: present, alt text, under 500 KB, no edge over 2400px,
 and no ratio past 4:1 — a strip in a panel built for something squarer.
 
+### Rules of your own
+
+Anything under **** is yours: it runs with 
+> deckkit@0.1.0 evals
+> node --test "evals/**/*.test.mjs" like
+everything else, and 
+> deckkit@0.1.0 update
+> node scripts/update.mjs never touches it. The rules one level up
+belong to deckkit and do update.
+
+The split is universal versus yours. *A slide must fit* is true of any deck and
+lives in . *No deck of ours runs past twelve slides*, *our closing
+always carries the link* — those are yours.
+
+ shows both shapes: one that measures the rendered
+deck, one that just reads the YAML. Both are skipped until you claim them.
+
 ## Adding a fact
 
 In `canon/facts.yaml`:

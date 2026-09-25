@@ -68,11 +68,40 @@ f.addEventListener('load', () => setTimeout(() => {
       };
     }).filter((i) => i.heightRatio > 0);
 
+    // Content sitting on top of other content. Only siblings are compared —
+    // a child always intersects its parent, and that is not a defect. A few
+    // pixels of touching is rounding; a quarter of the smaller box is not.
+    const overlaps = [];
+    const visible = (el) => {
+      const st = w.getComputedStyle(el);
+      return st.position !== 'absolute' && st.position !== 'fixed'
+        && st.display !== 'none' && st.visibility !== 'hidden'
+        && (el.textContent || '').trim().length > 0;
+    };
+    for (const parent of s.querySelectorAll('*')) {
+      const kids = [...parent.children].filter(visible);
+      for (let a = 0; a < kids.length; a++) {
+        for (let b = a + 1; b < kids.length; b++) {
+          const r1 = kids[a].getBoundingClientRect();
+          const r2 = kids[b].getBoundingClientRect();
+          const ox = Math.min(r1.right, r2.right) - Math.max(r1.left, r2.left);
+          const oy = Math.min(r1.bottom, r2.bottom) - Math.max(r1.top, r2.top);
+          if (ox <= 1 || oy <= 1) continue;
+          const area = ox * oy;
+          const smaller = Math.min(r1.width * r1.height, r2.width * r2.height);
+          if (smaller > 0 && area / smaller > 0.25) {
+            overlaps.push(kids[a].tagName.toLowerCase() + ' over ' + kids[b].tagName.toLowerCase());
+          }
+        }
+      }
+    }
+
     return {
       id: s.dataset.slideId || s.id || '',
       fit: parseFloat(w.getComputedStyle(s).getPropertyValue('--fit')) || 1,
       overflows: s.dataset.overflows === 'si',
       images: imgs,
+      overlaps: [...new Set(overlaps)],
     };
   });
   document.title = 'RESULT' + JSON.stringify(out);
@@ -145,7 +174,7 @@ export async function measureDeck() {
 
       const slides = (deck.slides ?? []).map((id, i) => {
         const per = {};
-        for (const v of VIEWPORTS) per[v.name] = byViewport[v.name][i] ?? { fit: 1, overflows: false, images: [] };
+        for (const v of VIEWPORTS) per[v.name] = byViewport[v.name][i] ?? { fit: 1, overflows: false, images: [], overlaps: [] };
 
         const worst = Object.entries(per)
           .map(([viewport, r]) => ({ viewport, ...r }))
@@ -162,6 +191,8 @@ export async function measureDeck() {
           worst,
           images,
           overflows: Object.entries(per).filter(([, r]) => r.overflows).map(([v]) => v),
+          overlaps: Object.entries(per).flatMap(([viewport, r]) =>
+            (r.overlaps ?? []).map((o) => `${o} on ${viewport}`)),
         };
       });
 

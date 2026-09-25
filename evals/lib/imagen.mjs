@@ -6,14 +6,21 @@
  */
 import { readFileSync } from 'node:fs';
 
-/** A deck is a link someone opens on their phone, often on mobile data. */
-export const MAX_BYTES = 500 * 1024;
-/** Past this the image is wider than any screen it will ever land on, and the
- *  extra pixels are download time nobody sees. */
-export const MAX_EDGE = 2400;
-/** A panel is roughly square-ish to 16:9. Past this the image can only sit in
- *  its box as a thin strip with air around it. */
-export const MAX_RATIO = 4;
+/** Suggested budgets, NOT enforced here.
+ *
+ *  A weight limit and a shape limit are judgement calls: 500 KB is generous for
+ *  a deck sent over mobile data and stingy for one shown on an office wall, and
+ *  4:1 is a preference about panels, not a defect. Rules in `evals/` hold for
+ *  every deck ever made with this; these do not, so they live in
+ *  `evals/mine/` where whoever wants them can set their own numbers.
+ *
+ *  What stays universal: an image that does not load, and an image with no alt
+ *  text. Both are broken for anybody. */
+export const SUGGESTED = {
+  bytes: 500 * 1024,
+  edge: 2400,
+  ratio: 4,
+};
 
 export function readSize(buf) {
   // PNG: 8-byte signature, then IHDR with width and height as big-endian u32.
@@ -38,23 +45,28 @@ export function readSize(buf) {
   return null;
 }
 
+/** Facts about the file. Deciding which of them is a problem is the caller's
+ *  job — that is where taste lives. */
 export function inspect(path) {
   const buf = readFileSync(path);
   const size = readSize(buf);
-  const problems = [];
+  const ratio = size ? Math.max(size.width / size.height, size.height / size.width) : null;
+  return { bytes: buf.length, size, ratio, edge: size ? Math.max(size.width, size.height) : null };
+}
 
-  if (buf.length > MAX_BYTES) {
-    problems.push(`${(buf.length / 1024).toFixed(0)} KB — heavy for a link opened on mobile data (budget ${MAX_BYTES / 1024} KB)`);
+/** Measures against whichever budgets the caller passes. Defaults to the
+ *  suggested ones so `evals/mine/` can call it with a single line. */
+export function against(path, budgets = SUGGESTED) {
+  const f = inspect(path);
+  const problems = [];
+  if (budgets.bytes && f.bytes > budgets.bytes) {
+    problems.push(`${(f.bytes / 1024).toFixed(0)} KB (budget ${Math.round(budgets.bytes / 1024)} KB)`);
   }
-  if (size) {
-    const edge = Math.max(size.width, size.height);
-    if (edge > MAX_EDGE) {
-      problems.push(`${size.width}x${size.height} — larger than any screen it lands on (cap ${MAX_EDGE}px)`);
-    }
-    const ratio = Math.max(size.width / size.height, size.height / size.width);
-    if (ratio > MAX_RATIO) {
-      problems.push(`${size.width}x${size.height} is ${ratio.toFixed(1)}:1 — too elongated to fill its panel`);
-    }
+  if (budgets.edge && f.edge && f.edge > budgets.edge) {
+    problems.push(`${f.size.width}x${f.size.height} — longest edge over ${budgets.edge}px`);
   }
-  return { bytes: buf.length, size, problems };
+  if (budgets.ratio && f.ratio && f.ratio > budgets.ratio) {
+    problems.push(`${f.size.width}x${f.size.height} is ${f.ratio.toFixed(1)}:1`);
+  }
+  return problems;
 }

@@ -44,3 +44,13 @@ test('both orientations were actually measured', () => {
     }
   }
 });
+
+// Two things drawn on top of each other is a defect in any deck, in any brand,
+// for any audience — no threshold to argue about, and nothing measured it.
+test('nothing is drawn on top of anything else', () => {
+  const stacked = decks.flatMap((d) => d.slides)
+    .filter((s) => s.overlaps.length)
+    .flatMap((s) => s.overlaps.map((o) => `${s.id}: ${o}`));
+
+  assert.deepEqual(stacked, [], 'overlapping content is unreadable, whatever it says');
+});

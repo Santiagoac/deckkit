@@ -148,8 +148,18 @@ slide** — do not reach for a smaller font, there isn't one to reach for.
 Report it to the person in their own words: *"esta slide trae de más, se va a
 ver más chica que las demás"*, not the number.
 
-It also checks images: present, alt text, under 500 KB, no edge over 2400px,
-and no ratio past 4:1 — a strip in a panel built for something squarer.
+It also catches content drawn on top of other content, and two things about
+images: that they load, and that they have alt text.
+
+**What is in `evals/` is only what is broken for every deck ever made with
+this** — overflow, illegible type, a slide out of scale with its neighbours,
+overlapping content, a missing image, a missing alt. No thresholds anyone could
+reasonably disagree with.
+
+Weight and shape budgets for images used to live here and no longer do: 500 KB
+is generous for a deck sent over mobile data and stingy for one shown on an
+office wall. They are in `evals/mine/ejemplo.test.mjs`, with the numbers set
+where whoever wants them can change them.
 
 ### Rules of your own
 

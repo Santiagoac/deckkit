@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { inspect } from './lib/imagen.mjs';
+
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const slidesDir = join(root, 'src', 'content', 'slides');
@@ -41,13 +41,5 @@ test('every image has alt text', () => {
   assert.deepEqual(mute, [], 'a deck is a link; someone will open it with a screen reader');
 });
 
-test('no image is too heavy or too oddly shaped for the panel it sits in', () => {
-  const problems = visuals()
-    .filter((v) => v.type === 'image' && v.src)
-    .flatMap((v) => {
-      const path = join(root, 'public', v.src.replace(/^\//, ''));
-      if (!existsSync(path)) return [];
-      return inspect(path).problems.map((p) => `${v.slide} (${v.src}): ${p}`);
-    });
-  assert.deepEqual(problems, []);
-});
+// Weight and shape budgets are judgement calls, so they are not here. See
+// evals/mine/ejemplo.test.mjs for a version you can set your own numbers on.

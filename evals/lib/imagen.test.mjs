@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readSize, MAX_RATIO } from './imagen.mjs';
+import { readSize, against, SUGGESTED } from './imagen.mjs';
 
 const png = (w, h) => {
   const b = Buffer.alloc(26);
@@ -29,7 +29,22 @@ test('an unknown format returns null rather than a wrong guess', () => {
   assert.equal(readSize(Buffer.alloc(0)), null);
 });
 
-test('the ratio cap is loose enough for a normal photo, tight enough for a banner', () => {
-  assert.ok(1920 / 1080 < MAX_RATIO, '16:9 passes');
-  assert.ok(3200 / 180 > MAX_RATIO, 'a 17:1 banner does not');
+test('the suggested ratio is loose enough for a photo, tight enough for a banner', () => {
+  assert.ok(1920 / 1080 < SUGGESTED.ratio, '16:9 passes');
+  assert.ok(3200 / 180 > SUGGESTED.ratio, 'a 17:1 banner does not');
+});
+
+// The budgets belong to the caller now, which is the whole point of moving
+// them out of the template's evals.
+test('against() measures the numbers it is handed, not numbers of its own', async () => {
+  const { writeFileSync, mkdtempSync } = await import('node:fs');
+  const { join } = await import('node:path');
+  const { tmpdir } = await import('node:os');
+
+  const file = join(mkdtempSync(join(tmpdir(), 'img-')), 'a.png');
+  writeFileSync(file, png(3200, 180));   // 17.8:1, tiny on disk
+
+  assert.equal(against(file, { ratio: 20 }).length, 0, 'a loose budget passes it');
+  assert.equal(against(file, { ratio: 4 }).length, 1, 'a tight one does not');
+  assert.equal(against(file, {}).length, 0, 'no budget, no opinion');
 });

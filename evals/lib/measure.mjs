@@ -75,7 +75,14 @@ function dumpTitle(base, path, width, height) {
     '--headless=new', '--disable-gpu', '--no-sandbox',
     `--window-size=${Math.max(width, 900)},${Math.max(height, 900)}`,
     '--virtual-time-budget=9000', '--dump-dom', `${base}/${name}`,
-  ], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
+  ], {
+    encoding: 'utf8',
+    maxBuffer: 32 * 1024 * 1024,
+    // Chrome writes pages of CVDisplayLink warnings on macOS headless. They
+    // are harmless and they are also the first thing a founder would read as
+    // "something broke", so they do not reach the terminal.
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
 
   const m = dom.match(/<title>RESULT(.*?)<\/title>/s);
   if (!m) throw new Error(`The deck never reported its layout at ${width}x${height}.`);

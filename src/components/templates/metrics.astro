@@ -15,12 +15,14 @@ const logos = (await getCollection('logos')).filter((l) => l.data.group === 'cus
 </Slide>
 <style>
   .metrics { display: flex; flex-direction: column; gap: var(--sp-10); justify-content: center; }
+  /* As many equal columns as there are metrics: two split 50/50 instead of
+     filling two thirds of a three-column grid and leaving a hole. */
   .metrics__row {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-6);
+    display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--sp-6);
   }
   .metrics__logos { width: 100%; max-width: 1100px; margin: 0 auto; opacity: 0.95; }
   @media (max-width: 900px) {
     .metrics { gap: var(--sp-5); }
-    .metrics__row { grid-template-columns: 1fr; gap: var(--sp-3); }
+    .metrics__row { grid-auto-flow: row; grid-template-columns: 1fr; gap: var(--sp-3); }
   }
 </style>

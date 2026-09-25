@@ -126,6 +126,31 @@ canon. Writing a body under one of them **fails the build** and says so — it
 used to be discarded silently, which cost two slides their supporting line in a
 deck that had already shipped.
 
+## After writing or changing any slide
+
+**Run `npm run evals`.** Not at the end of the deck — after the slides you just
+touched. It opens the deck in a real browser at 1440x900 and at 390x844 and
+reads what the deck computed about itself.
+
+Three outcomes, and they mean different things:
+
+```
+✗ overflows          content is cut off on screen. Broken. Fix it.
+✗ renders at 54%     it fits only by shrinking past readable. Fix it.
+⚠ renders at 78%     it fits, but smaller than its neighbours.
+```
+
+The warning is the one worth understanding, because nothing looks broken. A
+slide at 78% is rendering three-quarters the size of the slide before it, and
+in a deck that reads as a mistake nobody can name. **Cut a line or split the
+slide** — do not reach for a smaller font, there isn't one to reach for.
+
+Report it to the person in their own words: *"esta slide trae de más, se va a
+ver más chica que las demás"*, not the number.
+
+It also checks images: present, alt text, under 500 KB, no edge over 2400px,
+and no ratio past 4:1 — a strip in a panel built for something squarer.
+
 ## Adding a fact
 
 In `canon/facts.yaml`:

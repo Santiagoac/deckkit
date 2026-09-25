@@ -16,7 +16,10 @@ any slide is written.
    `npm run update -- --check`, report what it found in their language, and on
    their say-so run `npm run update`. Their own files are protected by
    `.gitattributes`; do not try to merge by hand.
-6. **Run `npm run check`** to see where things stand, and say it back to the
+6. **After writing or changing any slide, run `npm run evals`.** It measures
+   every slide in a real browser at desktop and phone sizes. Overflow and a
+   fit below 60% are failures; below 85% is a warning worth acting on.
+7. **Run `npm run check`** to see where things stand, and say it back to the
    person in their own language.
 
 `.claude/skills/` is a Claude Code convention. Under Codex the files are plain

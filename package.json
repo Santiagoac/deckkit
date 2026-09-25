@@ -20,7 +20,8 @@
     "no-secrets": "node scripts/no-secrets.mjs",
     "deck:urls": "node scripts/deck-urls.mjs",
     "postbuild": "npm run deck:urls",
-    "update": "node scripts/update.mjs"
+    "update": "node scripts/update.mjs",
+    "evals:layout": "node --test evals/layout.test.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.0",

@@ -74,6 +74,10 @@ a { color: inherit; }
   --sp-12: calc(96px * var(--fit));
 }
 .slide__body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+/* Body text a template does not style itself still follows the type scale.
+   Without this it stays at the browser 16px, which in the overview is the
+   size of a title on a thumbnail. */
+.slide__body { font-size: var(--t-body); }
 .slide__body > * { min-height: 0; }
 .slide__footer {
   display: flex; align-items: flex-end; justify-content: space-between;

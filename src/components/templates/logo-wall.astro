@@ -19,5 +19,7 @@ const logos = (await getCollection('logos')).filter((l) => l.data.group === 'inv
 </Slide>
 <style>
   .backing { display: flex; flex-direction: column; gap: var(--sp-2); }
+  /* On a phone the visual row stretches: centre the logos, do not pin them to the top. */
+  .duo__visual { display: grid; place-items: center; }
   .duo__visual :global(img) { max-height: 100%; width: auto; margin: 0 auto; }
 </style>

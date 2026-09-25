@@ -15,6 +15,7 @@ canon/**            merge=keep-mine
 company/**          merge=keep-mine
 src/content/**      merge=keep-mine
 public/assets/**    merge=keep-mine
+evals/mine/**       merge=keep-mine
 
 # Generated, and gitignored anyway — belt and braces.
 src/styles/tokens.generated.css   merge=keep-mine

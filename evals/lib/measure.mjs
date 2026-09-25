@@ -54,11 +54,27 @@ function harness(url, width, height) {
 <script>
 f.addEventListener('load', () => setTimeout(() => {
   const w = f.contentWindow, d = w.document;
-  const out = [...d.querySelectorAll('.slide')].map((s) => ({
-    id: s.dataset.slideId || s.id || '',
-    fit: parseFloat(w.getComputedStyle(s).getPropertyValue('--fit')) || 1,
-    overflows: s.dataset.overflows === 'si',
-  }));
+  const out = [...d.querySelectorAll('.slide')].map((s) => {
+    const box = s.getBoundingClientRect();
+    // How much of the slide each image actually takes. A rule like "the
+    // closing image is a signature, not the subject" is a claim about this
+    // number, and there is no way to know it without rendering.
+    const imgs = [...s.querySelectorAll('img')].map((im) => {
+      const r = im.getBoundingClientRect();
+      return {
+        src: (im.getAttribute('src') || '').split('/').pop(),
+        heightRatio: box.height ? +(r.height / box.height).toFixed(3) : 0,
+        widthRatio: box.width ? +(r.width / box.width).toFixed(3) : 0,
+      };
+    }).filter((i) => i.heightRatio > 0);
+
+    return {
+      id: s.dataset.slideId || s.id || '',
+      fit: parseFloat(w.getComputedStyle(s).getPropertyValue('--fit')) || 1,
+      overflows: s.dataset.overflows === 'si',
+      images: imgs,
+    };
+  });
   document.title = 'RESULT' + JSON.stringify(out);
 }, 1200));
 </script>`;
@@ -129,16 +145,22 @@ export async function measureDeck() {
 
       const slides = (deck.slides ?? []).map((id, i) => {
         const per = {};
-        for (const v of VIEWPORTS) per[v.name] = byViewport[v.name][i] ?? { fit: 1, overflows: false };
+        for (const v of VIEWPORTS) per[v.name] = byViewport[v.name][i] ?? { fit: 1, overflows: false, images: [] };
 
         const worst = Object.entries(per)
           .map(([viewport, r]) => ({ viewport, ...r }))
           .sort((a, b) => a.fit - b.fit)[0];
 
+        // The tallest an image gets across the viewports measured: a rule about
+        // an image's weight has to hold on the screen where it weighs most.
+        const images = Object.entries(per).flatMap(([viewport, r]) =>
+          (r.images ?? []).map((im) => ({ viewport, ...im })));
+
         return {
           id,
           byViewport: per,
           worst,
+          images,
           overflows: Object.entries(per).filter(([, r]) => r.overflows).map(([v]) => v),
         };
       });

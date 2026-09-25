@@ -18,6 +18,7 @@ export const MINE = [
   'company/',
   'src/content/',
   'public/assets/',
+  'evals/mine/',
 ];
 
 const TYPE = /^(\w+)(?:\([^)]*\))?!?:\s*(.+)$/;

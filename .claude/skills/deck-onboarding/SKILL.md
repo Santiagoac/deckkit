@@ -210,9 +210,12 @@ answering questions for.** Do not end on a status report.
    root: `http://localhost:4321/demo-57100540ae57`. The root is the index, and
    in production it is behind a password — sending them there is the most common
    way to make a working setup look broken.
-3. Tell them the three keys that matter: `→` to advance, `P` for presentation
+3. Run `npm run evals` and say what it found, in their words. A slide that
+   overflows or shrinks past the floor is not finished, however good the
+   writing is.
+4. Tell them the three keys that matter: `→` to advance, `P` for presentation
    mode, `O` to see every slide at once.
-4. Then say what comes next: writing their first real deck (the
+5. Then say what comes next: writing their first real deck (the
    `deck-authoring` skill if present, otherwise by hand following CLAUDE.md),
    and publishing after that (the Publishing section of CLAUDE.md).
 
